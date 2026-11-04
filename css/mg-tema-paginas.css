@@ -1,0 +1,51 @@
+/* MG Pecas - regras das paginas (antes no <style id="mg-polimento"> do Codigo do selo do Rodape). Carregado por <link> no mesmo lugar do Rodape, para manter a ordem do CSS. */
+/* polimento visual 27/10 - paginas (fonte: backups/2026-10-27_polimento_visual) */
+#MainContent{min-height:calc(100vh - 222px)}
+@media (max-width:767px){#MainContent{min-height:calc(100vh - 400px)}
+}
+.page-header-title{text-transform:uppercase}
+body.template-page #ns-section-heading,body.template-search #ns-section-heading,body.template-contact #ns-section-heading{row-gap:0 !important}
+body.template-page #ns-section-heading .page-header,body.template-search #ns-section-heading .page-header,body.template-contact #ns-section-heading .page-header{padding-top:56px !important;padding-bottom:0 !important}
+@media (max-width:767px){body.template-page #ns-section-heading .page-header,body.template-search #ns-section-heading .page-header,body.template-contact #ns-section-heading .page-header{padding-top:32px !important}
+}
+body.template-page .page-content.user-content>p:first-child,body.template-page .page-content.user-content>div:first-child>p:first-child{margin-top:16px}
+body.template-page .page-content.user-content>p:first-child>em:only-child{color:#6b7587;font-size:14px}
+#mgcat-guard{margin-top:32px}
+body.template-contact #ns-section-contact_form{padding-top:32px}
+#ns-section-custom_1792681598913 .section-custom{padding-top:0 !important;padding-bottom:0 !important}
+#ns-block-code_dfmg{display:flow-root}
+#mg-pg:empty,#mg-av:empty{display:none !important}
+#mg-pg:not(:empty){padding:0 !important;margin-top:32px}
+#mg-av:not(:empty){margin-top:32px}
+body.template-page #MainContent,body.template-search #MainContent,body.template-contact #MainContent,body.template-404 #MainContent{padding-bottom:64px}
+body.template-page .page-content.user-content>:last-child,body.template-page .page-content.user-content>div:last-child>:last-child{margin-bottom:0}
+@media (max-width:767px){body.template-page #MainContent,body.template-search #MainContent,body.template-contact #MainContent,body.template-404 #MainContent{padding-bottom:48px}
+}
+body.template-page .page-content.user-content>div[style*="max-width"]{max-width:none !important;margin-left:0 !important;margin-right:0 !important}
+body.template-page .page-content.user-content p,body.template-page .page-content.user-content li{font-size:16px;line-height:1.65;color:#2b3445;max-width:72ch;text-align:left}
+body.template-page .page-content.user-content{container-type:inline-size}
+body.template-page .page-content.user-content p>img{width:min(1000px,100cqw) !important;max-width:none;height:auto !important;border-radius:12px;display:block;margin:0 0 16px}
+body.template-page .page-content.user-content p>iframe{width:min(1000px,100cqw) !important;max-width:none !important;height:auto;aspect-ratio:16 / 9;border-radius:12px;display:block}
+body.template-page .page-content.user-content .mg-galeria img{max-width:none;margin:0 !important;border-radius:8px}
+body.template-page .page-content.user-content ul{padding-left:1.25em;margin:0 0 16px}
+body.template-page .page-content.user-content li{margin-bottom:8px}
+body.template-page .page-content.user-content h2,body.template-page .page-content.user-content h3{font-family:'Barlow Condensed','Sora',sans-serif !important;font-weight:800;text-transform:uppercase;letter-spacing:.01em;line-height:1.1;color:#000922 !important;text-wrap:balance}
+.page-header-title{text-wrap:balance}
+body.template-page .page-content.user-content h2{font-size:32px;margin:48px 0 12px}
+body.template-page .page-content.user-content h3{font-size:26px;margin:40px 0 10px}
+@media (max-width:767px){body.template-page .page-content.user-content h2{font-size:24px;margin-top:40px}
+body.template-page .page-content.user-content h3{font-size:20px;margin-top:32px}
+body.template-page .page-content.user-content p,body.template-page .page-content.user-content li{font-size:16px}
+}
+body.template-page .page-content.user-content p>a[style*="padding"]{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 20px !important;margin:8px 8px 0 0;border-radius:6px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;border:2px solid #3498db !important;box-sizing:border-box;transition:background-color .15s,color .15s}
+body.template-page .page-content.user-content p>a[style*="background"]{background:#3498db !important;color:#fff !important}
+body.template-page .page-content.user-content p>a[style*="background"]:hover{background:#2383c4 !important;border-color:#2383c4 !important}
+body.template-page .page-content.user-content p>a[style*="border"]:not([style*="background"]){background:#fff !important;color:#2a7fbf !important}
+body.template-page .page-content.user-content p>a[style*="border"]:not([style*="background"]):hover{background:#eef6fc !important}
+body.template-category .page-header-description{font-size:14px;line-height:1.55;max-width:72ch;color:#4a5568}
+.products-grid-search-heading{font-family:'Inter',sans-serif;font-size:18px !important;line-height:1.4;font-weight:400;margin:16px 0 24px !important;color:#2b3445}
+body.template-search #ns-section-product_list .products-grid{padding-top:0 !important;padding-bottom:0 !important}
+body.template-search .products-grid-header{margin-bottom:0 !important}
+body.template-contact .btn-primary{background:#3498db !important;border-color:#3498db !important;color:#fff !important;border-radius:6px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;text-transform:uppercase;letter-spacing:.06em;min-height:48px}
+body.template-contact .btn-primary:hover{background:#2383c4 !important;border-color:#2383c4 !important}
+/* fim polimento visual 27/10 */

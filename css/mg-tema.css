@@ -1,0 +1,174 @@
+/* MG Pecas - CSS personalizado do tema Ipanema (movido do campo do tema em 27/10/2026 por causa do limite de 15.000 caracteres).
+   Carregado por @import no topo do CSS personalizado do tema. As regras das paginas (antes no <style id="mg-polimento"> do Rodape) estao em mg-tema-paginas.css. */
+/* MG: site e catalogo, sem venda online */
+.header-account, .header-cart, .nav-panel-account-row, #modal-cart { display: none !important; }
+
+/* pagina do produto: catalogo, sem compra */
+.product-sku, .product-content > .mg-codigo, .js-product-form, .product-description-heading, .product-shipping-wrapper, .product-payment-discount { display: none !important; }
+.js-product-name { text-transform: uppercase; }
+
+/* celular: titulo da categoria sem estourar a tela */
+@media (max-width: 767px) { .page-header-title { font-size: 28px; overflow-wrap: anywhere; } .page-header-title-inner { min-width: 0; flex-wrap: wrap; } }
+
+/* linhas de produtos: miniaturas iguais */
+.section-featured-categories .category-item-image { width: 130px; height: 130px; background: #fff; border: 1px solid #e3e8ef; border-radius: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.section-featured-categories .category-item-image picture, .section-featured-categories .category-item-image img { width: 100%; height: 100%; object-fit: contain; padding: 10px; }
+.section-featured-categories .category-item-link { font-weight: 600; }
+
+/* e-mail de marketing fora do site (sem acesso) */
+a[href^="mailto:marketing@"] { display: none !important; }
+
+/* YouTube fora do rodape (MG usa Instagram) */
+footer a[href*="youtube.com"] { display: none !important; }
+
+
+/* Azul base MG #3498db no produto (2026-10-23) */
+.mg-badge { background: #3498db !important; }
+/* tabela de aplicação e botão das lojas parceiras: azul mais escuro para leitura (contraste 4,85:1 com branco), aprovado pelo Filipe em 03/11 */
+.mg-op-b1, .mg-desc th { background: #1a73c8 !important; }
+.mg-op-b2 { color: #3498db !important; }
+/* sem ordenar por preço */
+.js-sort-by-private option[value^="price"] { display: none; }
+
+/* Revisão final de estética (2026-10-23) */
+html, body { overflow-x: clip; }
+.product-item-image-container > div:last-child { padding-bottom: 80% !important; background: #fff; }
+.product-item-image { object-fit: contain !important; }
+h1, .heading-block { font-family: 'Barlow Condensed', 'Sora', sans-serif !important; font-weight: 800 !important; letter-spacing: .01em; }
+.section-product-list .heading-block { text-transform: uppercase; color: #000922; font-size: 40px !important; line-height: 1; }
+@media (max-width: 767px) { .section-product-list .heading-block { font-size: 30px !important; } }
+/* ===== Cabeçalho e menu Produtos (2026-10-23) ===== */
+.head-main { background: #fff !important; transition: box-shadow .2s; }
+.sticky-header-wrapper.is-fixed .head-main { box-shadow: 0 6px 22px rgba(0,9,34,.10); }
+.logo-img { transition: transform .18s; }
+.logo-img:hover { transform: scale(1.03); }
+
+/* busca */
+.search-form-wrap .search-input { border: 1.5px solid #dfe4ee !important; border-radius: 10px !important; background: #fff !important; transition: border-color .18s, box-shadow .18s; }
+.search-form-wrap .search-input:focus { border-color: #3498db !important; box-shadow: 0 0 0 3px rgba(52,152,219,.2) !important; outline: none; }
+.search-form-wrap .search-btn svg, .search-form-wrap .search-btn .icon { fill: #3498db !important; color: #3498db !important; }
+
+/* itens do menu */
+.nav-desktop .nav-main-item > .nav-list-link { font-family: 'Barlow Condensed', sans-serif !important; font-weight: 600 !important; font-size: 17px !important; letter-spacing: .06em; text-transform: uppercase; color: #000922 !important; position: relative; padding-bottom: 6px; transition: color .18s; }
+.nav-desktop .nav-main-item > .nav-list-link::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: #3498db; transform: scaleX(0); transform-origin: left; transition: transform .2s; }
+.nav-desktop .nav-main-item:hover > .nav-list-link, .nav-desktop .nav-main-item > .nav-list-link.selected { color: #3498db !important; }
+.nav-desktop .nav-main-item:hover > .nav-list-link::after, .nav-desktop .nav-main-item > .nav-list-link.selected::after { transform: scaleX(1); }
+.nav-desktop .nav-main-item > .nav-list-link svg { fill: currentColor; }
+
+/* menu suspenso Produtos: só as linhas */
+.nav-desktop .js-desktop-dropdown { background: transparent !important; }
+.nav-desktop .js-desktop-dropdown .desktop-dropdown-container { max-width: 1240px; margin: 0 auto; background: #fff !important; border-top: 3px solid #3498db; border-radius: 0 0 12px 12px; box-shadow: 0 12px 32px rgba(0,9,34,.14); padding: 28px 40px !important; }
+.nav-desktop .desktop-list-subitems { display: grid !important; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px 16px; margin: 0 !important; columns: auto !important; }
+.nav-desktop .desktop-list-subitems > li { margin: 0 !important; padding: 0 !important; break-inside: avoid; width: auto !important; }
+.nav-desktop .desktop-list-subitems .list-subitems { display: none !important; }
+.nav-desktop .desktop-list-subitems > li > .nav-list-link { display: flex !important; align-items: center; gap: 12px; min-height: 56px; padding: 8px 12px !important; border-radius: 10px; font-family: 'Barlow Condensed', sans-serif !important; font-weight: 700 !important; font-size: 17px !important; line-height: 1.1; letter-spacing: .03em; text-transform: uppercase; color: #000922 !important; opacity: 1 !important; text-decoration: none; transition: background .18s, color .18s, transform .18s; }
+.nav-desktop .desktop-list-subitems > li > .nav-list-link:hover { background: #eef6fc; color: #3498db !important; transform: translateX(4px); }
+.mg-nav-ico { flex: 0 0 40px; width: 40px; height: 40px; border-radius: 8px; background: #fff; border: 1px solid #e6ebf3; display: grid; place-items: center; overflow: hidden; }
+.mg-nav-ico img { width: 36px; height: 36px; object-fit: contain; }
+.mg-nav-ico b { font: 800 16px 'Barlow Condensed', sans-serif; color: #3498db; }
+.nav-desktop .desktop-list-subitems > li.mg-nav-todas > .nav-list-link { background: #3498db; color: #fff !important; justify-content: center; }
+.nav-desktop .desktop-list-subitems > li.mg-nav-todas > .nav-list-link:hover { background: #2a7fc0; color: #fff !important; transform: translateY(-1px); box-shadow: 0 8px 18px rgba(52,152,219,.35); }
+
+/* botões e links do site */
+.btn-primary, .mh-form button, .m2-bt, .m2-bts a, .mg-op-b1, .mh-pop a, .mh-tabs button, .mg-btn { transition: background .18s, color .18s, transform .18s, box-shadow .18s !important; }
+.btn-primary:hover, .mh-form button:hover, .m2-bt:hover, .mg-op-b1:hover, .mg-btn:hover { background: #2a7fc0 !important; transform: translateY(-1px); box-shadow: 0 8px 18px rgba(52,152,219,.3); }
+.btn-primary:active, .mh-form button:active, .m2-bt:active, .mg-op-b1:active, .mg-btn:active { transform: none; box-shadow: none; }
+a { transition: color .18s; }
+
+/* menu do celular (2026-10-23) */
+.nav-hamburger-body { background: #fff !important; }
+.nav-hamburger-body .nav-list-link { font-family: 'Barlow Condensed', sans-serif !important; font-weight: 600 !important; font-size: 18px !important; letter-spacing: .05em; text-transform: uppercase; color: #000922 !important; transition: color .18s, background .18s; }
+.nav-hamburger-body .nav-list-link:hover, .nav-hamburger-body .nav-list-link:active, .nav-hamburger-body .nav-list-link.selected { color: #3498db !important; background: #eef6fc; }
+.nav-hamburger-body .nav-list-arrow svg { fill: #3498db; }
+.modal-header .modal-title { font-family: 'Barlow Condensed', sans-serif !important; font-weight: 700 !important; font-size: 20px !important; text-transform: uppercase; color: #000922 !important; }
+
+/* cabeçalho em uma linha no PC (2026-10-23) */
+@media (min-width: 1024px) {
+  .js-head-main { display: grid !important; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; column-gap: 28px; min-height: 78px; padding: 8px max(28px, calc((100% - 1280px) / 2)) !important; border-bottom: 1px solid #eef1f6; }
+  .js-head-main > .head-row { display: contents !important; }
+  .js-head-main .logo-container { grid-column: 1; grid-row: 1; padding: 0 !important; margin: 0 !important; }
+  .js-head-main .logo-img { height: 58px !important; max-height: 58px !important; width: auto !important; }
+  .js-head-main .nav-desktop-container { grid-column: 2; grid-row: 1; border: 0 !important; background: transparent !important; margin: 0 !important; padding: 0 !important; }
+  .js-head-main .nav-desktop-grid { padding: 0 !important; margin: 0 !important; display: flex !important; justify-content: center; }
+  .js-head-main .nav-desktop-grid-main { width: auto !important; max-width: none !important; flex: 0 1 auto; }
+  .js-head-main .nav-desktop-list { display: flex !important; flex-wrap: nowrap; align-items: center; gap: 24px; margin: 0 !important; }
+  .js-head-main .nav-desktop-list > .nav-main-item { margin: 0 !important; padding: 0 !important; white-space: nowrap; }
+  .js-head-main .nav-desktop .nav-main-item > .nav-list-link { font-size: 16px !important; letter-spacing: .05em; padding: 8px 0 6px !important; }
+  .js-head-main .search-container { grid-column: 3; grid-row: 1; width: 320px !important; max-width: 320px; margin: 0 !important; padding: 0 !important; }
+  .js-head-main .search-container .search-form-wrap, .js-head-main .search-container .search-form { width: 100% !important; margin: 0 !important; }
+  .nav-desktop .js-desktop-dropdown { padding-top: 0 !important; margin-top: 0 !important; }
+  .js-head-main .search-container .search-input { height: 42px !important; border-radius: 999px !important; padding-left: 18px !important; font-size: 14px !important; }
+}
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .js-head-main { column-gap: 18px; }
+  .js-head-main .nav-desktop-list { gap: 16px; }
+  .js-head-main .nav-desktop .nav-main-item > .nav-list-link { font-size: 14px !important; letter-spacing: .04em; }
+  .js-head-main .search-container { width: 240px !important; max-width: 240px; }
+  .js-head-main .logo-img { height: 50px !important; }
+}
+
+
+/* Espaçamentos da home (2026-10-23): respiro de 64-84 px no PC e 44-48 px no celular */
+#ns-section-custom_1792686634385 .section-custom { padding-top: 0 !important; }
+#mg-home2 { margin-bottom: 0 !important; }
+@media (max-width: 767px) {
+  .section-featured-home { padding-top: 44px !important; padding-bottom: 44px !important; }
+  .mg-igl { padding-top: 44px !important; }
+}
+
+/* cabeçalho em uma linha com o item Avaliações (2026-10-25) */
+@media (min-width: 1024px) {
+  .js-head-main { column-gap: 24px !important; }
+  .js-head-main .nav-desktop .nav-desktop-list { gap: 20px !important; }
+  .js-head-main .nav-desktop .nav-desktop-list > .nav-main-item > a.nav-list-link[href*="/catalogo/"] { font-size: 0 !important; letter-spacing: 0 !important; }
+  .js-head-main .nav-desktop .nav-desktop-list > .nav-main-item > a.nav-list-link[href*="/catalogo/"]::before { content: "Catálogo"; display: inline; position: static; font-size: 16px; letter-spacing: .05em; }
+  .js-head-main .search-container { width: 280px !important; max-width: 280px !important; }
+}
+@media (min-width: 1280px) {
+  .js-head-main .nav-desktop-list-arrow { display: none !important; }
+  .js-head-main .nav-desktop .nav-desktop-list { padding: 0 !important; overflow: visible !important; }
+}
+@media (min-width: 1024px) and (max-width: 1365px) {
+  .js-head-main .nav-desktop .nav-desktop-list { gap: 16px !important; }
+  .js-head-main .nav-desktop .nav-desktop-list > .nav-main-item > .nav-list-link { font-size: 15px !important; letter-spacing: .04em !important; }
+  .js-head-main .nav-desktop .nav-desktop-list > .nav-main-item > a.nav-list-link[href*="/catalogo/"]::before { font-size: 15px; letter-spacing: .04em; }
+  .js-head-main .search-container { width: 250px !important; max-width: 250px !important; }
+}
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .js-head-main .nav-desktop .nav-desktop-list { gap: 14px !important; }
+  .js-head-main .nav-desktop .nav-desktop-list > .nav-main-item > .nav-list-link { font-size: 14px !important; }
+  .js-head-main .nav-desktop .nav-desktop-list > .nav-main-item > a.nav-list-link[href*="/catalogo/"]::before { font-size: 14px; }
+  .js-head-main .search-container { width: 220px !important; max-width: 220px !important; }
+}
+
+/* buscador-veiculo header 26/10 */
+/* Menu com 9 itens em uma linha a partir de 1280 px: espaco entre itens e espacamento das letras um pouco menores */
+@media (min-width: 1280px) {
+  .js-head-main .nav-desktop .nav-desktop-list { gap: 12px !important; }
+  .js-head-main .nav-desktop .nav-desktop-list > .nav-main-item > .nav-list-link { letter-spacing: 0.03em !important; }
+}
+/* fim buscador-veiculo header */
+
+/* polimento visual 27/10 */
+/* Home e menu Produtos. As regras das páginas ficam num <style id="mg-polimento"> no Código do selo do Rodapé (este campo tem limite de 15.000 caracteres). */
+#mg-home .mh-wrap{box-sizing:border-box;width:100%;max-width:100%;margin-left:auto;margin-right:auto;padding-left:16px;padding-right:16px}
+@media (min-width:576px){#mg-home .mh-wrap{max-width:540px}
+}
+@media (min-width:768px){#mg-home .mh-wrap{max-width:720px}
+}
+@media (min-width:992px){#mg-home .mh-wrap{max-width:960px}
+}
+@media (min-width:1200px){#mg-home .mh-wrap{max-width:1140px}
+}
+@media (min-width:1400px){#mg-home .mh-wrap{max-width:1320px}
+}
+#ns-block-code_wso7 .m2-wrap,#ns-block-code_wso7 #mg-av-home,#ns-block-code_wso7 #mg-igl{padding-left:0 !important;padding-right:0 !important;max-width:none}
+.nav-desktop .desktop-list-subitems .mg-nav-ico{flex-basis:48px;width:48px;height:48px;border-radius:10px;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+.nav-desktop .desktop-list-subitems .mg-nav-ico img{width:44px;height:44px;transition:transform .25s ease}
+.nav-desktop .desktop-list-subitems .nav-list-link:hover .mg-nav-ico,.nav-desktop .desktop-list-subitems .nav-list-link:focus-visible .mg-nav-ico{transform:scale(1.15);border-color:#3498db;box-shadow:0 6px 16px rgba(0,9,34,.14)}
+.nav-desktop .desktop-list-subitems .nav-list-link:hover .mg-nav-ico img,.nav-desktop .desktop-list-subitems .nav-list-link:focus-visible .mg-nav-ico img{transform:scale(1.12)}
+@media (prefers-reduced-motion:reduce){.nav-desktop .desktop-list-subitems .mg-nav-ico,.nav-desktop .desktop-list-subitems .mg-nav-ico img{transition:none}
+}
+/* fim polimento visual 27/10 */
+/* botão das lojas parceiras: hover acompanha o azul mais escuro (03/11) */
+.mg-op-b1:hover { background: #155fa6 !important; }

@@ -1,0 +1,21 @@
+/* Campo de placa na home — MG Peças Automotivas (tema Ipanema) */
+.mghp{--mg-azul:#3498db;--mg-azul-esc:#2a7fbf;--mg-marinho:#000922;--mg-cinza:#5b6472;--mg-borda:#d9e1ea;font-family:"Barlow",system-ui,Arial,sans-serif;color:var(--mg-marinho);
+ background:#fff;border:1px solid var(--mg-borda);border-top:3px solid var(--mg-azul);border-radius:10px;padding:16px 22px;max-width:1200px;margin:18px auto;box-sizing:border-box;
+ display:flex;align-items:center;gap:20px;flex-wrap:wrap;box-shadow:0 4px 14px rgba(0,9,34,.06)}
+.mghp *{box-sizing:border-box}
+.mghp-ilustra{flex:0 0 auto;line-height:0;filter:drop-shadow(0 2px 3px rgba(0,0,0,.18))}
+.mghp-ilustra svg{width:132px;height:auto}
+.mghp-texto{flex:1 1 260px;min-width:0}
+.mghp-titulo{font:700 24px/1.05 "Barlow Condensed","Barlow",sans-serif;text-transform:uppercase;letter-spacing:.02em;margin:0 0 3px;text-wrap:balance}
+.mghp-sub{font:13px/1.35 "Barlow",system-ui,sans-serif;color:var(--mg-cinza);margin:0}
+.mghp-form{flex:0 1 400px;display:flex;gap:8px;align-items:stretch;min-width:0}
+.mghp input.mghp-placa{flex:1 1 170px;min-width:0;height:48px;border:2px solid var(--mg-marinho);border-radius:6px;padding:0 12px;background:#fff;color:var(--mg-marinho);
+ font:700 22px/1 "Barlow Condensed","Barlow",sans-serif;letter-spacing:.18em;text-transform:uppercase;text-align:center}
+.mghp input.mghp-placa::placeholder{color:#a3abb6;letter-spacing:.12em}
+.mghp-btn{height:48px;border:0;border-radius:6px;background:var(--mg-azul);color:#fff;font:700 15px/1 "Barlow Condensed","Barlow",sans-serif;text-transform:uppercase;letter-spacing:.06em;padding:0 20px;cursor:pointer;white-space:nowrap;transition:background .15s,transform .15s}
+.mghp-btn:hover{background:var(--mg-azul-esc);transform:translateY(-1px)}
+.mghp input:focus-visible,.mghp-btn:focus-visible{outline:3px solid rgba(52,152,219,.45);outline-offset:1px}
+.mghp-erro{flex-basis:100%;font:600 13px/1.3 "Barlow",system-ui,sans-serif;color:#b42318;margin:-8px 0 0}
+.mghp-erro:empty{display:none}
+@media (max-width:760px){.mghp{padding:16px}.mghp-ilustra svg{width:110px}.mghp-titulo{font-size:21px}.mghp-form{flex-basis:100%}}
+@media (max-width:480px){.mghp-ilustra{display:none}.mghp-form{flex-direction:column}.mghp input.mghp-placa{flex-basis:auto;width:100%}.mghp-btn{width:100%}}

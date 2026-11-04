@@ -1,0 +1,11 @@
+/* Linha do app MG na home (logo abaixo da faixa do catálogo): fina e discreta, o destaque continua sendo o catálogo */
+.mgha{--az2:#1a73c8;--cz:#5b6472;--bd:#e2e8f0;font:400 14px/1.2 "Barlow",system-ui,Arial,sans-serif;color:var(--cz);background:transparent;border:1px solid var(--bd);border-radius:8px;
+ max-width:1200px;height:44px;margin:10px auto 18px;padding:0 6px 0 12px;box-sizing:border-box;display:flex;align-items:center;gap:10px;white-space:nowrap;overflow:hidden}
+.mgha *{box-sizing:border-box}
+.mgha-ic{flex:0 0 auto;display:block;width:22px;height:22px;border-radius:5px}
+.mgha-t{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.mgha-t b{font-weight:600;color:#2d3748}
+.mgha .mgha-a{flex:0 0 auto;display:inline-flex;align-items:center;height:42px;padding:0 8px;font:600 14px/1 "Barlow",system-ui,sans-serif;color:var(--az2);text-decoration:none}
+.mgha .mgha-a:hover{text-decoration:underline}
+.mgha .mgha-a:focus-visible{outline:2px solid var(--az2);outline-offset:-4px;border-radius:6px}
+@media (max-width:440px){.mgha{font-size:13px;gap:8px;padding-left:10px}.mgha .mgha-a{font-size:13px}.mgha-longo{display:none}}

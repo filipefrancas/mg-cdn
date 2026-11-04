@@ -1,0 +1,77 @@
+/* Buscador por veículo e placa — MG Peças Automotivas (tema Ipanema) */
+.mgbv{--mg-azul:#3498db;--mg-azul-esc:#2a7fbf;--mg-marinho:#000922;--mg-cinza:#5b6472;--mg-borda:#d9e1ea;--mg-fundo:#f5f8fb;--mg-branco:#fff;--mg-ok:#1e8e4b;--mg-aviso:#b7791f;
+ font-family:"Barlow",system-ui,Arial,sans-serif;color:var(--mg-marinho);background:var(--mg-branco);border:1px solid var(--mg-borda);border-radius:8px;padding:18px;max-width:1100px;margin:0 auto;box-sizing:border-box}
+.mgbv *{box-sizing:border-box}
+.mgbv-bloco{margin:0}
+.mgbv-titulo{font:700 17px/1.1 "Barlow Condensed","Barlow",sans-serif;text-transform:uppercase;letter-spacing:.05em;color:var(--mg-marinho);margin:0 0 10px}
+.mgbv-ou{display:flex;align-items:center;gap:12px;margin:14px 0;color:var(--mg-cinza);font:600 13px/1 "Barlow Condensed","Barlow",sans-serif;text-transform:uppercase;letter-spacing:.1em}
+.mgbv-ou::before,.mgbv-ou::after{content:"";flex:1;border-top:1px solid var(--mg-borda)}
+.mgbv-aba:focus-visible,.mgbv button:focus-visible,.mgbv select:focus-visible,.mgbv input:focus-visible{outline:3px solid rgba(52,152,219,.45);outline-offset:1px}
+.mgbv-linha{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;align-items:end}
+.mgbv-campo label{display:block;font:600 12px/1.2 "Barlow Condensed","Barlow",sans-serif;text-transform:uppercase;letter-spacing:.06em;color:var(--mg-cinza);margin-bottom:5px}
+.mgbv select,.mgbv input[type=text]{width:100%;height:44px;border:1px solid var(--mg-borda);border-radius:6px;padding:0 12px;font:15px "Barlow",system-ui,sans-serif;background:var(--mg-branco);color:var(--mg-marinho)}
+.mgbv select:disabled{background:var(--mg-fundo);color:#9aa3ae}
+.mgbv-btn{height:44px;border:0;border-radius:6px;background:var(--mg-azul);color:#fff;font:700 15px/1 "Barlow Condensed","Barlow",sans-serif;text-transform:uppercase;letter-spacing:.05em;padding:0 20px;cursor:pointer;transition:background .15s,transform .15s}
+.mgbv-btn:hover{background:var(--mg-azul-esc);transform:translateY(-1px)}
+.mgbv-btn[disabled]{opacity:.55;cursor:default;transform:none}
+.mgbv-placa-wrap{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+.mgbv-placa-wrap .mgbv-campo{flex:1 1 220px}
+.mgbv-placa-ilustra{flex:0 0 auto;line-height:0;filter:drop-shadow(0 2px 3px rgba(0,0,0,.18))}
+.mgbv-placa-ilustra svg{width:150px;height:auto}
+@media (max-width:480px){.mgbv-placa-ilustra{flex-basis:100%}.mgbv-placa-ilustra svg{width:130px}}
+.mgbv input.mgbv-placa{font:700 22px/1 "Barlow Condensed","Barlow",sans-serif;letter-spacing:.18em;text-transform:uppercase;text-align:center;height:52px;border-width:2px;border-color:var(--mg-marinho)}
+.mgbv-nota{font-size:13px;color:var(--mg-cinza);margin:8px 0 0}
+.mgbv-status{margin-top:14px;padding:12px 14px;border-radius:6px;background:var(--mg-fundo);font-size:15px;display:none}
+.mgbv-status.on{display:block}
+.mgbv-status.aviso{background:#fff7e6;color:#7a5200}
+.mgbv-status.erro{background:#fdecec;color:#8a1c1c}
+.mgbv-veiculo{font-weight:700}
+.mgbv-res{margin-top:16px}
+.mgbv-res-cab{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.mgbv-res-cab h3{margin:0;font:700 22px/1.1 "Barlow Condensed","Barlow",sans-serif;text-transform:uppercase}
+.mgbv-res-cab small{color:var(--mg-cinza)}
+.mgbv-grupo{margin-top:14px}
+.mgbv-grupo h4{margin:0 0 8px;font:600 15px/1.2 "Barlow Condensed","Barlow",sans-serif;text-transform:uppercase;letter-spacing:.05em;color:var(--mg-cinza);border-bottom:1px solid var(--mg-borda);padding-bottom:5px}
+.mgbv-itens{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.mgbv-item{border:1px solid var(--mg-borda);border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;background:var(--mg-branco);transition:border-color .15s,box-shadow .15s}
+.mgbv-item:hover{border-color:var(--mg-azul);box-shadow:0 2px 10px rgba(0,9,34,.08)}
+.mgbv-item a{color:inherit;text-decoration:none;display:flex;flex-direction:column;gap:6px}
+.mgbv-foto{display:block;aspect-ratio:400/220;width:calc(100% + 24px);margin:-10px -12px 2px;border-radius:6px 6px 0 0;overflow:hidden;background:#fff;border-bottom:1px solid var(--mg-borda)}
+.mgbv-foto img{width:100%;height:100%;object-fit:contain;display:block}
+.mgbv-foto.sem{display:flex;align-items:center;justify-content:center;background:var(--mg-fundo)}
+.mgbv-foto-txt{font:600 12px/1 "Barlow Condensed","Barlow",sans-serif;text-transform:uppercase;letter-spacing:.08em;color:#9aa3ae}
+.mgbv-cod{display:inline-block;align-self:flex-start;background:var(--mg-marinho);color:#fff;font:700 14px/1 "Barlow Condensed","Barlow",sans-serif;letter-spacing:.06em;padding:5px 8px;border-radius:3px}
+.mgbv-tipo{font-weight:600;font-size:15px;line-height:1.25}
+.mgbv-apl{font-size:13px;color:var(--mg-cinza)}
+.mgbv-apl b{color:var(--mg-marinho);font-weight:600}
+.mgbv-chip{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 6px;border-radius:3px;background:#e6f3fb;color:var(--mg-azul-esc)}
+.mgbv-chip.verificar{background:#fff3d6;color:var(--mg-aviso)}
+.mgbv-vazio{padding:16px;border:1px dashed var(--mg-borda);border-radius:6px;color:var(--mg-cinza);text-align:center}
+.mgbv-vazio a{color:var(--mg-azul)}
+@media (max-width:520px){.mgbv{padding:14px}.mgbv-itens{grid-template-columns:1fr}}
+/* ---- bloco "Outras peças MG para o seu carro" (página do produto) ---- */
+.mgrel{--mg-azul:#3498db;--mg-azul-esc:#2a7fbf;--mg-marinho:#000922;--mg-cinza:#5b6472;--mg-borda:#d9e1ea;--mg-fundo:#f5f8fb;--mg-branco:#fff;--mg-aviso:#b7791f;font-family:"Barlow",system-ui,Arial,sans-serif;color:var(--mg-marinho);margin:28px 0}
+.mgrel *{box-sizing:border-box}
+.mgrel-titulo{font:700 22px/1.1 "Barlow Condensed","Barlow",sans-serif;text-transform:uppercase;letter-spacing:.04em;margin:0 0 4px}
+.mgrel-intro{margin:0 0 12px;color:var(--mg-cinza);font-size:14px;max-width:72ch}
+.mgrel-faixa{display:inline-block;margin-top:4px;background:var(--mg-fundo);border:1px solid var(--mg-borda);border-radius:4px;padding:2px 8px;font-weight:600;color:var(--mg-marinho)}
+.mgrel-barra{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.mgrel-chips{display:flex;flex-wrap:wrap;gap:8px}
+.mgrel-chip{appearance:none;border:1px solid var(--mg-borda);background:var(--mg-branco);border-radius:999px;padding:8px 14px;font:600 14px "Barlow",sans-serif;color:var(--mg-marinho);cursor:pointer}
+.mgrel-chip small{font-weight:700;color:var(--mg-azul-esc);margin-left:4px}
+.mgrel-chip.on{background:var(--mg-marinho);color:#fff;border-color:var(--mg-marinho)}.mgrel-chip.on small{color:#9fd0f3}
+.mgrel-ver{display:inline-flex;align-items:center;gap:4px;background:var(--mg-azul);color:#fff;text-decoration:none;font:700 14px "Barlow Condensed","Barlow",sans-serif;text-transform:uppercase;letter-spacing:.06em;padding:10px 16px;border-radius:6px;white-space:nowrap}
+.mgrel-ver:hover{background:var(--mg-azul-esc);color:#fff}
+.mgrel-carrossel{position:relative;padding:0 38px}
+.mgrel-trilho{display:grid;grid-auto-flow:column;grid-auto-columns:200px;gap:10px;overflow-x:auto;padding:2px 2px 10px;scroll-snap-type:x mandatory;scrollbar-width:none}
+.mgrel-trilho::-webkit-scrollbar{display:none}
+.mgrel-seta{position:absolute;top:50%;transform:translateY(-60%);width:34px;height:34px;border-radius:50%;border:1px solid var(--mg-borda);background:#fff;color:var(--mg-marinho);cursor:pointer;font-size:12px;box-shadow:0 2px 8px rgba(0,9,34,.12);display:flex;align-items:center;justify-content:center;z-index:2;padding:0}
+.mgrel-seta.esq{left:0}.mgrel-seta.dir{right:0}.mgrel-seta:hover{background:var(--mg-azul);color:#fff;border-color:var(--mg-azul)}
+.mgrel-card{scroll-snap-align:start;border:1px solid var(--mg-borda);border-radius:6px;background:#fff;text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:5px;padding:10px 10px;transition:border-color .15s,box-shadow .15s}
+.mgrel-card:hover{border-color:var(--mg-azul);box-shadow:0 2px 10px rgba(0,9,34,.08);color:inherit}
+.mgrel-card .mgbv-foto{width:calc(100% + 20px);margin:-10px -10px 4px}
+.mgrel-nome{font-weight:600;font-size:14px;line-height:1.25}.mgrel-sub{font-size:12.5px;color:var(--mg-cinza)}
+.mgrel-card.mais{justify-content:center;align-items:center;text-align:center;background:var(--mg-fundo);border-style:dashed}
+.mgrel-mais-n{font:700 34px/1 "Barlow Condensed","Barlow",sans-serif;color:var(--mg-azul)}.mgrel-mais-t{font-size:13px;color:var(--mg-cinza)}.mgrel-mais-b{margin-top:6px;font:700 13px "Barlow Condensed","Barlow",sans-serif;text-transform:uppercase;letter-spacing:.06em;color:var(--mg-azul-esc)}
+.mgrel-sep{height:1px;background:var(--mg-borda);margin:22px 0 18px}
+@media(max-width:700px){.mgrel-carrossel{padding:0 30px}.mgrel-seta{width:30px;height:30px}.mgrel-trilho{grid-auto-columns:168px}}
