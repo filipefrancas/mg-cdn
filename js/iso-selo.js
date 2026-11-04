@@ -5,7 +5,7 @@
  */
 (function () {
   'use strict';
-  var SELO = window.MG_ISO_SELO || 'https://cdn.jsdelivr.net/gh/filipefrancas/mg-site-arquivos@334dcfb416e23abd9c306bd6baf129c4719766b9/img/selo-rina-iso9001-360.png';
+  var SELO = window.MG_ISO_SELO || 'https://cdn.jsdelivr.net/gh/filipefrancas/mg-cdn@d6378b9b62a657c660a5151cd781e54c37b5fc6e/img/selo-rina-iso9001-360.png';
   var ROTULO = 'Fábrica certificada ISO 9001 – saiba mais';
   var opcao = window.MG_ISO_OPCAO || 'A';
 

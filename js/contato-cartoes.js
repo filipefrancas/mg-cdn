@@ -5,7 +5,7 @@
 (function () {
   'use strict';
   if (!/^\/contato\/?$/.test(location.pathname)) return;
-  var BASE = window.MG_CARTOES_BASE || 'https://cdn.jsdelivr.net/gh/filipefrancas/mg-site-arquivos@18d33acebdaae9ce510c82bf009d5c87573ccf11/img/contato/';
+  var BASE = window.MG_CARTOES_BASE || 'https://cdn.jsdelivr.net/gh/filipefrancas/mg-cdn@d6378b9b62a657c660a5151cd781e54c37b5fc6e/img/contato/';
   var CARTOES = [
     { assunto: 'trabalhe', rotulo: /Quero trabalhar na MG/i, img: 'card_trabalhe.jpg', alt: 'Quer trabalhar na MG? Envie seu currículo pelo formulário' },
     { assunto: 'fornecedor', rotulo: /Sou fornecedor/i, img: 'card_fornecedor.jpg', alt: 'Quer fornecer para a MG? Envie sua apresentação pelo formulário' }

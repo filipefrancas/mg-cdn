@@ -15,8 +15,8 @@
   if (window.__mgSeo) return;
   window.__mgSeo = 1;
   /* VER = commit dos dados de avaliações (o mesmo do avaliacoes.js) */
-  var VER = 'c1a7ec4622eccc27737edb123c312625d5d34733';
-  var DADOS_PROD = 'https://cdn.jsdelivr.net/gh/filipefrancas/mg-site-arquivos@' + VER + '/dados/avaliacoes_produtos.json';
+  var VER = 'd6378b9b62a657c660a5151cd781e54c37b5fc6e';
+  var DADOS_PROD = 'https://cdn.jsdelivr.net/gh/filipefrancas/mg-cdn@' + VER + '/dados/avaliacoes_produtos.json';
   /* AVAL = põe a nota das avaliações (Mercado Livre) no JSON-LD do produto. Ver LEIA-ME antes de ligar. */
   var AVAL = false; /* Filipe 27/10: sem estrelas do ML para o Google (no site as avaliações continuam) */
   var MARCA = { '@type': 'Brand', name: 'MG Peças Automotivas' };
