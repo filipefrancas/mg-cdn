@@ -1,0 +1,70 @@
+/* MG Peças – "Minha lista" no site (js/mg-lista.js carrega este arquivo do mesmo commit) */
+.mgl-add,.mgl-cab,.mgl-gaveta,.mgl-toast{font-family:Inter,sans-serif;-webkit-font-smoothing:antialiased}
+.mgl-add svg,.mgl-cab svg,.mgl-gaveta svg{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mgl-gaveta svg.mgl-cheio,.mgl-cab circle,.mgl-add circle{fill:currentColor;stroke:none}
+
+/* página de produto: botão secundário pequeno (como o "adicionar" de uma loja, mas discreto) */
+.mgl-add{margin:0 0 18px}
+.mgl-add-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:44px;padding:8px 16px;border:1px solid #3498db;border-radius:6px;background:#fff;color:#1a73c8;font:600 14px/1.2 Inter,sans-serif;cursor:pointer;transition:background .15s}
+.mgl-add-btn svg{width:18px;height:18px}
+@media (hover:hover){.mgl-add-btn:hover{background:#eef6fc}}
+.mgl-add-btn:focus-visible,.mgl-cab:focus-visible,.mgl-gaveta button:focus-visible,.mgl-gaveta a:focus-visible,.mgl-toast button:focus-visible{outline:3px solid #000922;outline-offset:2px}
+.mgl-add-info{margin:6px 0 0;font-size:13px;color:#4a5568}
+.mgl-add-info:empty{display:none}
+.mgl-link{background:none;border:0;padding:0;color:#1a73c8;font:inherit;font-weight:600;text-decoration:underline;cursor:pointer}
+
+/* ícone da lista no cabeçalho (no lugar do carrinho das lojas), só quando a lista tem itens */
+.mgl-cab{display:none;position:relative;flex:none;align-items:center;justify-content:center;width:44px;height:44px;padding:0;border:0;border-radius:22px;background:none;color:#000922;cursor:pointer}
+html.mgl-tem .mgl-cab{display:inline-flex}
+.mgl-cab svg{width:22px;height:22px}
+.mgl-cab-n{position:absolute;top:3px;right:1px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#3498db;color:#fff;font:700 11px/18px Inter,sans-serif;text-align:center}
+@media (hover:hover){.mgl-cab:hover{background:#edf2f7}}
+html.mgl-tem .js-head-main .js-search-container>.js-search-expand-form{flex:1 1 auto;min-width:0;max-width:calc(100% - 48px)}
+.mgl-cab:not(.mgl-cab-cel){margin-left:4px;align-self:center;height:42px}
+html.mgl-tem .js-head-main .head-row{position:relative}
+.mgl-cab-cel{position:absolute;right:16px;top:26px;z-index:3}
+.mgl-cab-solto{position:fixed;right:12px;top:12px;z-index:999;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+/* gaveta */
+.mgl-fundo{position:fixed;inset:0;z-index:10040;background:rgba(0,9,34,.45);opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s}
+.mgl-fundo.on{opacity:1;visibility:visible}
+.mgl-gaveta{position:fixed;top:0;right:0;bottom:0;z-index:10050;display:flex;flex-direction:column;width:420px;max-width:100%;background:#fff;color:#1a202c;box-shadow:-6px 0 24px rgba(0,0,0,.18);transform:translateX(105%);visibility:hidden;transition:transform .25s ease,visibility .25s}
+.mgl-gaveta.on{transform:none;visibility:visible}
+.mgl-gaveta:focus{outline:0}
+html.mgl-trava,html.mgl-trava body{overflow:hidden}
+.mgl-topo{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 12px 6px 20px}
+.mgl-titulo{margin:0;font:800 28px/1.1 "Barlow Condensed","Sora",sans-serif;text-transform:uppercase;color:#000922}
+.mgl-fechar{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border:0;border-radius:22px;background:none;color:#1a202c;cursor:pointer}
+.mgl-fechar:hover{background:#edf2f7}
+.mgl-nota{margin:0;padding:0 20px 12px;font-size:13px;color:#4a5568;border-bottom:1px solid #e2e8f0}
+.mgl-itens{flex:1;overflow:auto;margin:0;padding:4px 12px 4px 20px;list-style:none;overscroll-behavior:contain}
+.mgl-item{display:grid;grid-template-columns:56px 1fr auto;grid-template-rows:auto auto;column-gap:12px;row-gap:6px;align-items:center;padding:12px 0;border-bottom:1px solid #edf2f7;position:relative}
+.mgl-foto{grid-row:1 / 3;display:block;width:56px;height:56px;border:1px solid #e2e8f0;border-radius:6px;background:#fff;overflow:hidden}
+.mgl-foto img{width:100%;height:100%;object-fit:contain}
+.mgl-tx{min-width:0;padding-right:4px}
+.mgl-cod{display:inline-block;font-weight:800;font-size:15px;color:#1a73c8;text-decoration:none}
+.mgl-cod:hover{text-decoration:underline}
+.mgl-nome{display:block;font-size:14px;line-height:1.3;color:#2d3748}
+.mgl-qtd{grid-column:2;display:flex;align-items:center;gap:2px}
+.mgl-q{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border:1px solid #cbd5e0;border-radius:6px;background:#fff;color:#000922;cursor:pointer}
+.mgl-q:hover:not(:disabled){border-color:#3498db;color:#1a73c8}
+.mgl-q:disabled{opacity:.4;cursor:default}
+.mgl-n{min-width:40px;text-align:center;font-weight:700;font-size:16px}
+.mgl-rm{grid-column:3;grid-row:1 / 3;display:flex;align-items:center;justify-content:center;width:44px;height:44px;border:0;border-radius:22px;background:none;color:#718096;cursor:pointer}
+.mgl-rm:hover{background:#fff5f5;color:#c53030}
+.mgl-vazio{margin:24px 20px;color:#4a5568;font-size:15px}
+.mgl-acoes{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 20px calc(14px + env(safe-area-inset-bottom));border-top:1px solid #e2e8f0;background:#fff}
+.mgl-b{display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:10px 12px;border-radius:6px;font:700 15px/1.2 Inter,sans-serif;text-decoration:none;cursor:pointer;border:2px solid transparent}
+.mgl-b-wa{grid-column:1 / 3;background:#3498db;color:#fff}
+.mgl-b-wa:hover{background:#1a73c8;color:#fff}
+.mgl-b-sec{background:#fff;color:#1a73c8;border-color:#3498db}
+.mgl-b-limpa{background:#fff;color:#4a5568;border-color:#cbd5e0}
+.mgl-b-limpa:hover{color:#c53030;border-color:#c53030}
+.mgl-sem .mgl-acoes{display:none}
+
+/* aviso */
+.mgl-toast{position:fixed;left:0;right:0;margin:0 auto;width:max-content;bottom:24px;z-index:10060;display:flex;align-items:center;gap:14px;max-width:calc(100% - 32px);padding:6px 6px 6px 14px;border-radius:8px;background:#000922;color:#fff;font-size:14px;box-shadow:0 6px 20px rgba(0,0,0,.25);transform:translateY(20px);opacity:0;visibility:hidden;transition:transform .2s,opacity .2s,visibility .2s}
+html.mgl-trava .mgl-toast{bottom:150px}
+.mgl-toast.on{transform:none;opacity:1;visibility:visible}
+.mgl-toast-msg{min-width:0}
+.mgl-toast-acao{flex:none;min-height:36px;padding:0 10px;border:0;border-radius:6px;background:#3498db;color:#fff;font:700 14px/1 Inter,sans-serif;cursor:pointer}
+@media (prefers-reduced-motion:reduce){.mgl-gaveta,.mgl-fundo,.mgl-toast{transition:none}}
