@@ -4,7 +4,7 @@
    O formulário nativo da Nuvemshop continua na página, recolhido em "Prefere o formulário simples?".
    Se o envio falhar, ele abre sozinho, já preenchido (se não for achado, o texto continua no formulário novo).
    O tempo de espera só começa a contar depois que o arquivo terminou de subir (internet de celular fraca).
-   Link direto: /contato/?assunto=peca | distribuidor | fornecedor | trabalhe | outro */
+   Link direto: /contato/?assunto=peca | distribuidor | fornecedor | trabalhe | outro | ficha (ficha cadastral: formulário do distribuidor) */
 (function () {
   if (window.__mgContato) return;
   window.__mgContato = 1;
@@ -60,8 +60,15 @@
     distribuidor: '<path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/>',
     fornecedor: '<path d="M12 3l8 4.5v9L12 21l-8-4.5v-9zM4 7.5l8 4.5 8-4.5M12 12v9"/>',
     trabalhe: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>',
-    outro: '<path d="M4 5h16v11H8l-4 4z"/>'
+    outro: '<path d="M4 5h16v11H8l-4 4z"/>',
+    ficha: '<rect x="5" y="5" width="14" height="16" rx="2"/><path d="M9 3h6v4H9zM8 12h8M8 16h6"/>'
   };
+  var CAMPOS_DIST = [F.nome, { n: 'empresa', l: 'Empresa ou nome da loja', req: 1, max: 120, ac: 'organization' },
+    { n: 'cnpj', l: 'CNPJ (opcional)', max: 20, ph: 'Ex.: 12.345.678/0001-90' },
+    { n: 'negocio', l: 'Tipo de negócio', t: 'lista', req: 1, op: ['Autopeças', 'Oficina', 'Distribuidor', 'Outro'] },
+    { n: 'cidade', l: 'Cidade', req: 1, max: 80, ac: 'address-level2' },
+    { n: 'uf', l: 'UF', t: 'lista', req: 1, op: UFS, ac: 'address-level1' }, F.email, F.tel,
+    c(F.msg, { l: 'Mensagem (opcional)', req: 0, ph: 'Ex.: Quero conhecer a linha MG para a minha loja.' })];
   var ASSUNTOS = [
     { id: 'peca', titulo: 'Dúvida sobre uma peça', sub: 'Código, aplicação ou qual peça serve no seu veículo', contato: 'um', arquivos: 2,
       campos: [F.nome, F.email, F.tel,
@@ -69,15 +76,15 @@
         { n: 'veiculo', l: 'Veículo, ano e motor (se souber)', max: 120, ph: 'Ex.: Gol 1.0 2012' },
         c(F.msg, { ph: 'Ex.: A mangueira do radiador está rachada e quero saber qual é a da MG.' }),
         { n: 'arquivo', t: 'arquivo', l: 'Foto da peça (opcional, até 2 fotos)', ajuda: 'Uma foto da peça antiga, de preferência mostrando o número gravado, ajuda muito a achar a certa.', so: 'foto' }] },
-    { id: 'distribuidor', titulo: 'Sou distribuidor', sub: 'Falar com o representante da sua região', contato: 'um', arquivos: 0,
-      campos: [F.nome, { n: 'empresa', l: 'Empresa', req: 1, max: 120, ac: 'organization' },
-        { n: 'cidade', l: 'Cidade', req: 1, max: 80, ac: 'address-level2' },
-        { n: 'uf', l: 'UF', t: 'lista', req: 1, op: UFS, ac: 'address-level1' }, F.email, F.tel, F.msg] },
+    { id: 'distribuidor', titulo: 'Sou distribuidor', sub: 'Falar com o representante da sua região', contato: 'um', arquivos: 0, campos: CAMPOS_DIST },
+    /* Ficha cadastral: o mesmo formulário do distribuidor, aberto por /contato/?assunto=ficha (botão "Quero que a MG me procure"
+       do cartão de revenda e página Representantes). Não aparece como cartão (oculto) e é enviado ao Worker como "distribuidor". */
+    { id: 'ficha', envia: 'distribuidor', oculto: 1, titulo: 'Ficha cadastral', sub: 'A MG entra em contato com você', contato: 'um', arquivos: 0, campos: CAMPOS_DIST },
     { id: 'fornecedor', titulo: 'Sou fornecedor', sub: 'Quero apresentar um produto ou serviço para a MG', contato: 'email', arquivos: 1,
       campos: [F.nome, { n: 'empresa', l: 'Empresa', req: 1, max: 120, ac: 'organization' }, c(F.email, { req: 1 }),
         c(F.tel, { l: 'Telefone (opcional)' }),
         { n: 'categoria', l: 'O que você quer apresentar?', t: 'lista', req: 1, op: ['Matéria-prima', 'Embalagem', 'Máquinas e ferramentas', 'Serviço', 'Outro'] },
-        { n: 'cnpj', l: 'CNPJ (opcional)', max: 20, im: 'numeric', ph: 'Ex.: 12.345.678/0001-90' },
+        { n: 'cnpj', l: 'CNPJ (opcional)', max: 20, ph: 'Ex.: 12.345.678/0001-90' },
         { n: 'site', l: 'Site da empresa (opcional)', t: 'url', max: 200, im: 'url', ac: 'url' }, F.msg,
         { n: 'arquivo', t: 'arquivo', l: 'Apresentação (opcional)', ajuda: 'PDF, JPG ou PNG, até 3 MB. Está em PowerPoint ou Word? Salve como PDF (Arquivo > Salvar como > PDF). Se for maior, coloque o link no campo do site.' }] },
     { id: 'trabalhe', titulo: 'Quero trabalhar na MG', sub: 'Deixe seus dados e seu currículo', contato: 'telefone', arquivos: 1,
@@ -96,10 +103,11 @@
       '<a class="mgf-bt mgf-bt2 mgf-ml" href="https://lista.mercadolivre.com.br/mg-pecas-automotivas" target="_blank" rel="noopener">Encontre em lojas parceiras online</a></div>' +
       '<p class="mgf-pequeno">Você será direcionado a revendedores independentes.</p></div>',
     distribuidor: '<p class="mgf-texto">A MG Peças Automotivas é fabricante e vende para distribuidores de autopeças. O representante da sua região atende você.</p>' +
-      '<p><a class="mgf-bt mgf-bt1" href="/representantes/">Sou distribuidor – falar com representante</a></p><p class="mgf-texto mgf-sub2">Não achou representante na sua região? Escreva aqui:</p>',
+      '<p><a class="mgf-bt mgf-bt1" href="/representantes/">Sou distribuidor – falar com representante</a></p><p class="mgf-texto mgf-sub2">Prefere que a MG entre em contato? Preencha a ficha cadastral:</p>',
     fornecedor: '<p class="mgf-texto">Quer apresentar um produto ou serviço para a fábrica? Conte em poucas linhas o que sua empresa faz e, se quiser, anexe a apresentação. Se houver interesse, a MG entra em contato.</p>',
     trabalhe: '<p class="mgf-texto">Deixe seus dados e seu currículo. Se surgir uma vaga que combine com você, a MG pode entrar em contato.</p>',
-    outro: '<p class="mgf-texto">Para qualquer outro assunto, escreva aqui.</p>'
+    outro: '<p class="mgf-texto">Para qualquer outro assunto, escreva aqui.</p>',
+    ficha: '<p class="mgf-texto">Preencha seus dados e a MG entra em contato com você.</p>'
   };
 
   var CSS = '' +
@@ -131,7 +139,7 @@
     '#mg-fale [aria-invalid=true]{border-color:var(--er) !important}#mg-fale .mgf-erro{color:var(--er);font-size:14px;margin:6px 0 0;font-weight:500}#mg-fale .mgf-erro:empty{display:none}' +
     '#mg-fale .mgf-ajuda{font-size:14px;color:var(--ci);margin:6px 0 0;line-height:1.45}#mg-fale .mgf-dupla{display:grid;gap:0 12px}@media(min-width:600px){#mg-fale .mgf-dupla{grid-template-columns:1fr 1fr}}' +
     '#mg-fale .mgf-dupla-aj{grid-column:1 / -1;margin:-8px 0 16px}' +
-    '#mg-fale .mgf-cid{display:grid;grid-template-columns:1fr 96px;gap:12px}' +
+    '#mg-fale .mgf-cid{display:grid;grid-template-columns:1fr 120px;gap:12px}' +
     '#mg-fale .mgf-ficha{display:inline-flex;align-items:center;min-height:48px;margin-top:4px;color:var(--az);font-weight:600;font-size:15px}' +
     '#mg-fale .mgf-arq-bt{display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:0 16px;border:1.5px dashed var(--az2);border-radius:8px;background:#fff;color:var(--az);font:600 15px Inter,system-ui,sans-serif;cursor:pointer}' +
     '#mg-fale .mgf-arq-bt svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2}' +
@@ -157,7 +165,7 @@
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]; }); }
   function el(tag, attrs, html) { var e = document.createElement(tag); for (var k in attrs || {}) e.setAttribute(k, attrs[k]); if (html != null) e.innerHTML = html; return e; }
   function telOk(t) { var d = String(t).replace(/\D/g, ''); return d.length >= 8 && d.length <= 26; } // mesma regra do Worker
-  var CNPJ_RE = /^[\d.\/\s-]{11,20}$/;
+  var CNPJ_RE = /^[0-9A-Za-z./\s-]{11,20}$/;
   function emailOk(e) { return /^[A-Za-z0-9._%+-]{1,64}@[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$/i.test(e); }
   function mb(n) { return n < 102400 ? Math.max(1, Math.ceil(n / 1024)) + ' KB' : (n / 1048576).toFixed(1).replace('.', ',') + ' MB'; }
 
@@ -395,7 +403,7 @@
     var primeiro = null, a = p.a;
     function marca(n, m) { var x = erroCampo(p, n, m); if (x && !primeiro) primeiro = x; }
     a.campos.forEach(function (f) { if (f.t !== 'arquivo') erroCampo(p, f.n, ''); });
-    a.campos.forEach(function (f) { if (f.req && f.t !== 'arquivo' && !v[f.n]) marca(f.n, T.preencha); });
+    a.campos.forEach(function (f) { if (f.req && f.t !== 'arquivo' && !v[f.n]) marca(f.n, f.t === 'lista' ? T.escolha : T.preencha); });
     if (v.email && !emailOk(v.email)) marca('email', T.email);
     if (v.telefone && !telOk(v.telefone)) marca('telefone', T.telefone);
     if (v.cnpj && !CNPJ_RE.test(v.cnpj)) marca('cnpj', T.cnpj);
@@ -439,7 +447,7 @@
     aviso.textContent = ''; aviso.className = 'mgf-aviso';
     var temArq = p.arquivos.length > 0;
     var fd = new FormData();
-    fd.append('assunto', p.a.id); fd.append('tm', String(Math.round(agoraMs() - p.t0))); fd.append('mg_confirmar', form.querySelector('[name=mg_confirmar]').value);
+    fd.append('assunto', p.a.envia || p.a.id); fd.append('tm', String(Math.round(agoraMs() - p.t0))); fd.append('mg_confirmar', form.querySelector('[name=mg_confirmar]').value);
     Object.keys(v).forEach(function (k) { if (v[k]) fd.append(k, v[k]); });
     p.arquivos.forEach(function (x, i) { fd.append('arquivo', x.blob, 'arquivo' + (i + 1) + '.' + x.ext); });
     var ts = form.querySelector('[name="cf-turnstile-response"]'); if (ts) fd.append('cf-turnstile-response', ts.value);
@@ -466,7 +474,7 @@
         fim(); var x = erroCampo(p, campo, MSG[er]); if (x && x.focus) x.focus(); return;
       }
       if (s === 400 && er === 'campo' && campo) {
-        fim(); var y = erroCampo(p, campo, campo === 'uf' || campo === 'categoria' ? T.escolha : campo === 'cnpj' ? T.cnpj : T.preencha); if (y && y.focus) y.focus(); return;
+        fim(); var y = erroCampo(p, campo, campo === 'uf' || campo === 'categoria' || campo === 'negocio' ? T.escolha : campo === 'cnpj' ? T.cnpj : T.preencha); if (y && y.focus) y.focus(); return;
       }
       falhou(s === 503 && er === 'cheio');
     });
@@ -505,6 +513,7 @@
     inn.appendChild(el('p', { 'class': 'mgf-intro' }, esc(T.intro)));
     cartoesBox = el('div', { 'class': 'mgf-cartoes', role: 'group', 'aria-label': 'Assunto' });
     ASSUNTOS.forEach(function (a) {
+      if (a.oculto) return; // a ficha cadastral não vira cartão
       var b = el('button', { type: 'button', 'class': 'mgf-cartao', 'data-id': a.id }, cartaoHTML(a));
       b.addEventListener('click', function () { escolher(a.id, true); });
       cartoesBox.appendChild(b);
@@ -539,6 +548,8 @@
 
     var q = /[?&]assunto=([a-z]+)/.exec(location.search);
     if (q && ASSUNTOS.some(function (a) { return a.id === q[1]; })) escolher(q[1], false);
+    // para outros scripts da página (ex.: os cartões grandes): window.MGContato.abrir('ficha')
+    window.MGContato = { abrir: function (id) { if (ASSUNTOS.some(function (a) { return a.id === id; })) { escolher(id, true); return true; } return false; } };
 
     if (TURNSTILE_SITEKEY && !document.querySelector('script[src*="turnstile"]')) {
       var s = el('script', { src: 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit', async: '', defer: '' }); document.head.appendChild(s);

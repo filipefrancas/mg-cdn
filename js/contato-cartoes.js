@@ -1,6 +1,7 @@
 ﻿/* MG Peças Automotivas - cartões "Trabalhe na MG" e "Fornecedores" no topo do Fale com a MG (/contato/).
  * Clicar no cartão escolhe o assunto no formulário (js/contato.js); sem ele, o link abre /contato/?assunto=...
  * Os cartões somem enquanto um assunto está aberto e voltam ao "Trocar de assunto".
+ * Cartão largo "Quer revender peças MG?": dois botões (/representantes/ e a ficha cadastral, /contato/?assunto=ficha).
  */
 (function () {
   'use strict';
@@ -10,6 +11,8 @@
     { assunto: 'trabalhe', rotulo: /Quero trabalhar na MG/i, img: 'card_trabalhe.jpg', alt: 'Quer trabalhar na MG? Envie seu currículo pelo formulário' },
     { assunto: 'fornecedor', rotulo: /Sou fornecedor/i, img: 'card_fornecedor.jpg', alt: 'Quer fornecer para a MG? Envie sua apresentação pelo formulário' }
   ];
+
+  var REV = 'https://cdn.jsdelivr.net/gh/filipefrancas/mg-cdn@67af3c9d007a6f5c4ea00ec78274717dd46fedb3/img/contato/';
 
   function css() {
     if (document.getElementById('mgcc-css')) return;
@@ -21,7 +24,13 @@
       '.mgcc img{display:block;width:100%;height:auto;aspect-ratio:760/440}' +
       '@media (hover:hover){.mgcc a:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(0,9,34,.18)}}' +
       '.mgcc a:focus-visible{outline:3px solid #000922;outline-offset:3px}' +
-      '@media (max-width:640px){.mgcc{grid-template-columns:1fr}}';
+      '@media (max-width:640px){.mgcc{grid-template-columns:1fr}}' +
+      '.mgcc .mgcc-rev{grid-column:1/-1;position:relative;border-radius:12px;overflow:hidden;box-shadow:0 4px 14px rgba(0,9,34,.12)}' +
+      '.mgcc .mgcc-rev img{aspect-ratio:760/270}' +
+      '.mgcc .mgcc-rev a{position:absolute;border-radius:10px;box-shadow:none;transform:none}' +
+      '.mgcc .mgcc-rev .r1{left:4.5%;top:65%;width:35%;height:20%}.mgcc .mgcc-rev .r2{left:39.5%;top:65%;width:36%;height:20%}' +
+      '@media (max-width:640px){.mgcc .mgcc-rev{grid-column:auto}.mgcc .mgcc-rev img{aspect-ratio:760/440}' +
+      '.mgcc .mgcc-rev .r1{left:4.5%;top:65%;width:42%;height:14%}.mgcc .mgcc-rev .r2{left:4.5%;top:79%;width:43%;height:13.5%}}';
     document.head.appendChild(s);
   }
 
@@ -57,6 +66,18 @@
       });
       w.appendChild(a);
     });
+    var r = document.createElement('div');
+    r.className = 'mgcc-rev';
+    r.innerHTML = '<picture><source media="(max-width:640px)" srcset="' + REV + 'card_revenda_cel.jpg">' +
+      '<img src="' + REV + 'card_revenda.jpg" width="760" height="270" decoding="async" alt="Quer revender peças MG? Fale com o representante da sua região ou peça para a MG entrar em contato"></picture>' +
+      '<a class="r1" href="/representantes/" aria-label="Falar com o representante"></a>' +
+      '<a class="r2" href="/contato/?assunto=ficha" aria-label="Quero que a MG me procure"></a>';
+    r.querySelector('.r2').addEventListener('click', function (ev) {
+      if (!window.MGContato || !window.MGContato.abrir) return; // sem o formulário, o link abre a ficha
+      ev.preventDefault();
+      window.MGContato.abrir('ficha');
+    });
+    w.appendChild(r);
     alvo.parentNode.insertBefore(w, alvo);
     return true;
   }
