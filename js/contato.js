@@ -31,6 +31,9 @@
     umDosDois: 'Preencha pelo menos um dos dois.',
     ok1: 'Mensagem enviada. Obrigado, ', ok2: 'Número do seu contato: ', ok3: '. Se for escrever de novo sobre o mesmo assunto, informe esse número.',
     limite: 'Você já mandou várias mensagens agora. Tente de novo daqui a uma hora.',
+    repetido: 'Recebemos uma mensagem sua sobre este assunto{d}. A MG vai responder pelo contato que você deixou. Não precisa enviar de novo.',
+    repetidoCv: 'Recebemos o seu currículo{d}. Ele está com o RH da MG. Não precisa enviar de novo.',
+    repetidoTit: 'Mensagem já recebida', repetidoTitCv: 'Currículo já recebido', repetidoProt: 'Número do seu contato: ',
     falha: 'Não conseguimos enviar por aqui agora. Copiamos sua mensagem para o formulário simples logo abaixo. É só clicar ou tocar em Enviar.',
     falhaArq: ' O arquivo não vai junto por esse formulário.',
     cheio: 'Estamos recebendo muitas mensagens agora. Copiamos a sua para o formulário simples logo abaixo. É só clicar ou tocar em Enviar.',
@@ -69,6 +72,8 @@
     { n: 'cidade', l: 'Cidade', req: 1, max: 80, ac: 'address-level2' },
     { n: 'uf', l: 'UF', t: 'lista', req: 1, op: UFS, ac: 'address-level1' }, F.email, F.tel,
     c(F.msg, { l: 'Mensagem (opcional)', req: 0, ph: 'Ex.: Quero conhecer a linha MG para a minha loja.' })];
+  var TXT_FICHA = { enviar: 'Enviar ficha cadastral', ok1: 'Ficha enviada. Obrigado, ',
+    lgpd: 'Usamos seus dados só para entrar em contato com você. Veja a <a href="/politica-de-privacidade/">Política de privacidade</a>.' };
   var ASSUNTOS = [
     { id: 'peca', titulo: 'Dúvida sobre uma peça', sub: 'Código, aplicação ou qual peça serve no seu veículo', contato: 'um', arquivos: 2,
       campos: [F.nome, F.email, F.tel,
@@ -76,10 +81,10 @@
         { n: 'veiculo', l: 'Veículo, ano e motor (se souber)', max: 120, ph: 'Ex.: Gol 1.0 2012' },
         c(F.msg, { ph: 'Ex.: A mangueira do radiador está rachada e quero saber qual é a da MG.' }),
         { n: 'arquivo', t: 'arquivo', l: 'Foto da peça (opcional, até 2 fotos)', ajuda: 'Uma foto da peça antiga, de preferência mostrando o número gravado, ajuda muito a achar a certa.', so: 'foto' }] },
-    { id: 'distribuidor', titulo: 'Sou distribuidor', sub: 'Falar com o representante da sua região', contato: 'um', arquivos: 0, campos: CAMPOS_DIST },
+    c({ id: 'distribuidor', titulo: 'Sou distribuidor', sub: 'Falar com o representante da sua região', contato: 'um', arquivos: 0, campos: CAMPOS_DIST }, TXT_FICHA),
     /* Ficha cadastral: o mesmo formulário do distribuidor, aberto por /contato/?assunto=ficha (botão "Quero que a MG me procure"
        do cartão de revenda e página Representantes). Não aparece como cartão (oculto) e é enviado ao Worker como "distribuidor". */
-    { id: 'ficha', envia: 'distribuidor', oculto: 1, titulo: 'Ficha cadastral', sub: 'A MG entra em contato com você', contato: 'um', arquivos: 0, campos: CAMPOS_DIST },
+    c({ id: 'ficha', envia: 'distribuidor', oculto: 1, titulo: 'Ficha cadastral', sub: 'A MG entra em contato com você', contato: 'um', arquivos: 0, campos: CAMPOS_DIST }, TXT_FICHA),
     { id: 'fornecedor', titulo: 'Sou fornecedor', sub: 'Quero apresentar um produto ou serviço para a MG', contato: 'email', arquivos: 1,
       campos: [F.nome, { n: 'empresa', l: 'Empresa', req: 1, max: 120, ac: 'organization' }, c(F.email, { req: 1 }),
         c(F.tel, { l: 'Telefone (opcional)' }),
@@ -103,11 +108,11 @@
       '<a class="mgf-bt mgf-bt2 mgf-ml" href="https://lista.mercadolivre.com.br/mg-pecas-automotivas" target="_blank" rel="noopener">Encontre em lojas parceiras online</a></div>' +
       '<p class="mgf-pequeno">Você será direcionado a revendedores independentes.</p></div>',
     distribuidor: '<p class="mgf-texto">A MG Peças Automotivas é fabricante e vende para distribuidores de autopeças. O representante da sua região atende você.</p>' +
-      '<p><a class="mgf-bt mgf-bt1" href="/representantes/">Sou distribuidor – falar com representante</a></p><p class="mgf-texto mgf-sub2">Prefere que a MG entre em contato? Preencha a ficha cadastral:</p>',
+      '<p><a class="mgf-bt mgf-bt1" href="/representantes/">Sou distribuidor – falar com representante</a></p><p class="mgf-texto mgf-sub2 mgf-pre">Prefere que a MG entre em contato? Preencha a ficha cadastral:</p>',
     fornecedor: '<p class="mgf-texto">Quer apresentar um produto ou serviço para a fábrica? Conte em poucas linhas o que sua empresa faz e, se quiser, anexe a apresentação. Se houver interesse, a MG entra em contato.</p>',
     trabalhe: '<p class="mgf-texto">Deixe seus dados e seu currículo. Se surgir uma vaga que combine com você, a MG pode entrar em contato.</p>',
     outro: '<p class="mgf-texto">Para qualquer outro assunto, escreva aqui.</p>',
-    ficha: '<p class="mgf-texto">Preencha seus dados e a MG entra em contato com você.</p>'
+    ficha: '<p class="mgf-texto mgf-pre">Preencha seus dados e a MG entra em contato com você.</p>'
   };
 
   var CSS = '' +
@@ -303,7 +308,7 @@
       '<div class="mgf-isca" aria-hidden="true"><label>Não preencha<input type="text" name="mg_confirmar" tabindex="-1" autocomplete="off"></label></div>' +
       campos + (TURNSTILE_SITEKEY ? '<div class="cf-turnstile" style="margin:0 0 16px"></div>' : '') +
       '<div class="mgf-aviso" role="alert"></div>' +
-      '<button type="submit" class="mgf-enviar">' + esc(T.enviar) + '</button><p class="mgf-lgpd">' + T.lgpd + '</p></form>';
+      '<button type="submit" class="mgf-enviar">' + esc(a.enviar || T.enviar) + '</button><p class="mgf-lgpd">' + (a.lgpd || T.lgpd) + '</p></form>';
   }
 
   function escolher(id, foco) {
@@ -439,8 +444,36 @@
     arma(PARADO_MS); x.send(fd);
   }
 
+  /* currículo da MESMA pessoa (mesmo telefone ou e-mail) já enviado deste aparelho nos últimos 30 dias: mostra "já recebemos"
+     sem enviar. Guarda só um resumo (hash curto) do telefone e do e-mail, nunca os dados. O Worker confere de novo. */
+  var CV_DIAS = 30, CV_CHAVE = 'mgf-cv';
+  function resumo(t) { var h = 5381; for (var i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
+  function idsCv(v) {
+    var ids = [], t = String(v.telefone || '').replace(/\D/g, ''), e = String(v.email || '').trim().toLowerCase(), at = e.lastIndexOf('@');
+    if (t.length >= 8) ids.push(resumo('t:' + t.slice(-8)));
+    if (at > 0) ids.push(resumo('e:' + e.slice(0, at).replace(/\+.*$/, '') + e.slice(at)));
+    return ids;
+  }
+  function lembra(p, v, prot) {
+    if (p.a.id !== 'trabalhe') return;
+    try {
+      var o = cvRecente(v), com = p.arquivos.length > 0; // 2º envio (complemento com o currículo) mantém a data do 1º
+      localStorage.setItem(CV_CHAVE, JSON.stringify(o ? { t: o.t, prot: o.prot, ids: o.ids, semArq: false } : { t: Date.now(), prot: prot || '', ids: idsCv(v), semArq: !com }));
+    } catch (e) { /* sem armazenamento: o Worker segura */ }
+  }
+  function cvRecente(v) {
+    try {
+      var o = JSON.parse(localStorage.getItem(CV_CHAVE) || 'null'), agora = Date.now();
+      if (o && o.t && agora >= o.t && agora - o.t < CV_DIAS * 864e5 && o.ids && idsCv(v).some(function (x) { return o.ids.indexOf(x) >= 0; })) return o;
+    } catch (e) { /* ok */ }
+    return null;
+  }
+  function dataBR(t) { var d = new Date(t); return ('0' + d.getDate()).slice(-2) + '/' + ('0' + (d.getMonth() + 1)).slice(-2) + '/' + d.getFullYear(); }
+
   function enviar(p) {
     var v = valores(p); if (!validar(p, v)) return;
+    var cv = p.a.id === 'trabalhe' && cvRecente(v);
+    if (cv && !(cv.semArq && p.arquivos.length)) { repetido(p, { protocolo: cv.prot, desde: dataBR(cv.t) }); return; } // sem arquivo antes e com agora: passa (complemento)
     var form = p.box.querySelector('form'), bt = form.querySelector('.mgf-enviar'), aviso = form.querySelector('.mgf-aviso');
     var progresso = form.querySelector('.mgf-progresso');
     if (!progresso) { progresso = el('p', { 'class': 'mgf-progresso', 'aria-live': 'polite' }); bt.parentNode.insertBefore(progresso, bt.nextSibling); }
@@ -452,7 +485,7 @@
     p.arquivos.forEach(function (x, i) { fd.append('arquivo', x.blob, 'arquivo' + (i + 1) + '.' + x.ext); });
     var ts = form.querySelector('[name="cf-turnstile-response"]'); if (ts) fd.append('cf-turnstile-response', ts.value);
     bt.disabled = true; bt.textContent = T.enviando; progresso.textContent = temArq ? T.esperaArq : '';
-    function fim() { bt.disabled = false; bt.textContent = T.enviar; progresso.textContent = ''; }
+    function fim() { bt.disabled = false; bt.textContent = p.a.enviar || T.enviar; progresso.textContent = ''; }
     function erroGeral(txt) { aviso.className = 'mgf-aviso erro'; aviso.textContent = txt; }
     function falhou(cheio) {
       fim();
@@ -466,7 +499,8 @@
       quantidade: T.arqQtd, 'arquivos-cheio': T.arqCheio, tamanho: T.longo };
     var CAMPO = { email: 'email', contato: 'email', telefone: 'telefone', cnpj: 'cnpj', curriculo: 'mensagem', tipo: 'arquivo', grande: 'arquivo', pdf: 'arquivo', quantidade: 'arquivo', 'arquivos-cheio': 'arquivo' };
     postar(fd, function (pct) { if (temArq) bt.textContent = pct < 100 ? T.enviandoArq + pct + '%' : T.enviando; }, function (s, j) {
-      if (s === 200 && j.ok) { fim(); sucesso(p, v, j.protocolo); return; }
+      if (s === 200 && j.ok && j.repetido) { fim(); repetido(p, j); return; } // mesma pessoa ou mesma mensagem de novo: nada foi enviado
+      if (s === 200 && j.ok) { fim(); lembra(p, v, j.protocolo); sucesso(p, v, j.protocolo); return; }
       if (s === 429) { fim(); erroGeral(T.limite); return; }
       if (s === 403 && j.erro === 'verificacao' && !p.vf) { p.vf = 1; fim(); erroGeral(T.verificacao); try { if (window.turnstile && p.ts != null) turnstile.reset(p.ts); } catch (e) { /* ok */ } return; }
       var er = j.erro, campo = j.campo || CAMPO[er];
@@ -474,19 +508,34 @@
         fim(); var x = erroCampo(p, campo, MSG[er]); if (x && x.focus) x.focus(); return;
       }
       if (s === 400 && er === 'campo' && campo) {
-        fim(); var y = erroCampo(p, campo, campo === 'uf' || campo === 'categoria' || campo === 'negocio' ? T.escolha : campo === 'cnpj' ? T.cnpj : T.preencha); if (y && y.focus) y.focus(); return;
+        fim(); var def = p.a.campos.filter(function (f) { return f.n === campo; })[0];
+        var y = erroCampo(p, campo, def && def.t === 'lista' ? T.escolha : campo === 'cnpj' ? T.cnpj : T.preencha); if (y && y.focus) y.focus(); return;
       }
       falhou(s === 503 && er === 'cheio');
     });
+  }
+
+  /* repetido: tela no lugar do formulário, com "já recebemos" (o formulário some, para não tentar de novo) */
+  function repetido(p, j) {
+    var d = /^\d{2}\/\d{2}\/\d{4}$/.test(j.desde || '') ? ' em ' + j.desde : '';
+    var prot = /^MG-[A-Z0-9]{3,10}$/.test(j.protocolo || '') ? j.protocolo : '';
+    var form = p.box.querySelector('form');
+    var ok = el('div', { 'class': 'mgf-ok', role: 'status', tabindex: '-1' },
+      '<h2>' + esc(p.a.id === 'trabalhe' ? T.repetidoTitCv : T.repetidoTit) + '</h2><p>' + esc((p.a.id === 'trabalhe' ? T.repetidoCv : T.repetido).replace('{d}', d)) + '</p>' +
+      (prot ? '<p>' + esc(T.repetidoProt) + '<span class="mgf-prot">' + esc(prot) + '</span></p>' : ''));
+    form.replaceWith(ok); ok.focus();
+    [].forEach.call(p.box.querySelectorAll('.mgf-atalhos, .mgf-pre'), function (x) { x.remove(); });
+    delete estado[p.a.id];
+    p.box.removeAttribute('data-assunto');
   }
 
   function sucesso(p, v, prot) {
     var nome = (v.nome || '').split(/\s+/)[0];
     var form = p.box.querySelector('form');
     var ok = el('div', { 'class': 'mgf-ok', role: 'status', tabindex: '-1' },
-      '<h2>' + esc(T.ok1 + nome + '!') + '</h2><p>' + esc(T.ok2) + '<span class="mgf-prot">' + esc(prot || '') + '</span>' + esc(T.ok3) + '</p>');
+      '<h2>' + esc((p.a.ok1 || T.ok1) + nome + '!') + '</h2><p>' + esc(T.ok2) + '<span class="mgf-prot">' + esc(prot || '') + '</span>' + esc(T.ok3) + '</p>');
     form.replaceWith(ok); ok.focus();
-    var at = p.box.querySelector('.mgf-atalhos'); if (at) at.remove();
+    [].forEach.call(p.box.querySelectorAll('.mgf-atalhos, .mgf-pre'), function (x) { x.remove(); }); // atalhos e 'preencha a ficha' saem da tela de sucesso
     delete estado[p.a.id]; // escolher o mesmo assunto de novo abre um formulário limpo
     p.box.removeAttribute('data-assunto');
   }
