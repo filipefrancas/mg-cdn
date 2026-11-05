@@ -448,10 +448,11 @@
      sem enviar. Guarda só um resumo (hash curto) do telefone e do e-mail, nunca os dados. O Worker confere de novo. */
   var CV_DIAS = 30, CV_CHAVE = 'mgf-cv';
   function resumo(t) { var h = 5381; for (var i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
-  function idsCv(v) {
+  function idsCv(v) { // primeiro nome junto: outra pessoa da família no mesmo aparelho e telefone manda o seu
     var ids = [], t = String(v.telefone || '').replace(/\D/g, ''), e = String(v.email || '').trim().toLowerCase(), at = e.lastIndexOf('@');
-    if (t.length >= 8) ids.push(resumo('t:' + t.slice(-8)));
-    if (at > 0) ids.push(resumo('e:' + e.slice(0, at).replace(/\+.*$/, '') + e.slice(at)));
+    var nm = String(v.nome || '').toLowerCase().replace(/[áàâãä]/g, 'a').replace(/[éèêë]/g, 'e').replace(/[íìîï]/g, 'i').replace(/[óòôõö]/g, 'o').replace(/[úùûü]/g, 'u').replace(/ç/g, 'c').trim().split(/\s+/)[0] || '';
+    if (t.length >= 8) ids.push(resumo('t:' + t.slice(-8) + '|' + nm));
+    if (at > 0) ids.push(resumo('e:' + e.slice(0, at).replace(/\+.*$/, '') + e.slice(at) + '|' + nm));
     return ids;
   }
   function lembra(p, v, prot) {
