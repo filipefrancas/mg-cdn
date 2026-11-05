@@ -4,7 +4,9 @@
    O formulário nativo da Nuvemshop continua na página, recolhido em "Prefere o formulário simples?".
    Se o envio falhar, ele abre sozinho, já preenchido (se não for achado, o texto continua no formulário novo).
    O tempo de espera só começa a contar depois que o arquivo terminou de subir (internet de celular fraca).
-   Link direto: /contato/?assunto=peca | distribuidor | fornecedor | trabalhe | outro | ficha (ficha cadastral: formulário do distribuidor) */
+   Link direto: /contato/?assunto=peca | distribuidor | fornecedor | trabalhe | outro | ficha (ficha cadastral: formulário do distribuidor)
+   Arquivos (05/11/2026): só IMAGENS vão para a MG. PDF vira imagem das páginas aqui, no navegador de quem envia (pdf.js, carregado
+   só quando a pessoa escolhe um PDF, versão fixa e conferida por SRI). Foto JPG/PNG é redesenhada (JPEG novo, sem GPS/EXIF, menor). */
 (function () {
   if (window.__mgContato) return;
   window.__mgContato = 1;
@@ -12,6 +14,20 @@
   var API = (window.MG_CONTATO_API || 'https://mg-depoimentos.filipefrancasilva10.workers.dev') + '/contato';
   var TURNSTILE_SITEKEY = window.MG_CONTATO_TURNSTILE || '0x4AAAAAAFyjfyGv2JPK5Lw_'; // site key (pública) do widget Turnstile "MG Contato" (criado em 03/11/2026)
   var ARQ_MAX = 3 * 1024 * 1024, ESPERA_MS = 20000, PARADO_MS = 45000, FOTO_MAX_PX = 1600;
+  /* PDF -> imagens: até PDF_PAGINAS páginas, lado maior PAGINA_PX, JPEG qualidade PAGINA_Q. PDF_MAX = tamanho do PDF escolhido
+     (o PDF não sobe: só as imagens, cada uma até ARQ_MAX). pdf.js: versão fixa no jsDelivr, conferida pelo hash (SRI). */
+  /* PDF_TEMPO_MS = tempo para transformar as páginas (conta depois que o pdf.js chegou); PDFJS_TEMPO_MS = tempo para baixar
+     o pdf.js (internet lenta: o erro é de rede, não do PDF). */
+  var PDF_PAGINAS = 6, PAGINA_PX = 1800, PAGINA_Q = 0.82, PDF_MAX = 30 * 1024 * 1024, PDF_TEMPO_MS = 90000, PDFJS_TEMPO_MS = 120000;
+  if (window.MG_CONTATO_PDF_TEMPOS) { PDFJS_TEMPO_MS = window.MG_CONTATO_PDF_TEMPOS.baixar || PDFJS_TEMPO_MS; PDF_TEMPO_MS = window.MG_CONTATO_PDF_TEMPOS.converter || PDF_TEMPO_MS; } // só nos testes
+  var PDFJS = {
+    url: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.624/legacy/build/',
+    lib: ['pdf.min.mjs', 'sha384-gODqfmmCm8sQcm/+GXB2MnmEwN/km42l7yz7UyPMxW/N1naqsTlUBbMW+4hVijhi'],
+    worker: ['pdf.worker.min.mjs', 'sha384-qU/3Yd3tQf+XgIOPVCGnmZTdZBW4IiQOzd6HTFaPAqaYjhYRQP1PARnOSe5Dowpm'],
+    /* decodificador de imagem JPEG2000 (PDF digitalizado pelo Acrobat ou por scanner): só é baixado se o PDF tiver esse
+       tipo de imagem, da mesma versão fixa, conferido pelo hash. */
+    wasm: { url: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.624/wasm/', 'openjpeg.wasm': 'sha384-gs7d4qr/GMHVAc/u65Cb1J8JBVLf+QCYkZnpE3rnpMnQHwLuMwit9PUbwQ5FE0SD' }
+  };
   var ML_MARCA = '_BRAND_64522', ML_SUFIXO = 'MG Mangueiras - MG Peças Automotivas'; // mesmo padrão do botão da ficha e do app
 
   var T = {
@@ -43,8 +59,15 @@
     simples: 'Prefere o formulário simples?',
     arqBotao: 'Escolher arquivo ou tirar foto', tirar: 'Tirar',
     arqTipo: 'Este arquivo não pode ser enviado. Mande só PDF, JPG ou PNG.',
-    arqGrande: 'Arquivo grande demais. O limite é 3 MB.',
+    arqGrande: 'Arquivo grande demais. Mande um arquivo menor ou fotos das páginas.',
     arqQtd: 'Arquivos demais. Tire um e tente de novo.',
+    arqLendo: 'Preparando o PDF... página {i} de {n}', arqFoto: 'Preparando a imagem...', arqAbrindo: 'Preparando o PDF...',
+    arqEspera: 'Espere o arquivo terminar de carregar.',
+    arqCortado: 'Seu PDF tem {t} páginas. Vão só as {n} primeiras. Se faltar algo importante, escreva na mensagem.',
+    arqPdfRuim: 'Não conseguimos abrir este PDF. Tire uma foto nítida de cada página e mande as fotos.',
+    arqPdfSenha: 'Este PDF tem senha. Mande sem senha ou tire uma foto nítida de cada página.',
+    arqPdfRede: 'Não conseguimos preparar o PDF agora. Confira a internet e tente de novo, ou mande fotos das páginas.',
+    paginas: ' páginas', pagina: ' página', tirarTudo: 'Tirar',
     arqPdf: 'Por segurança, não aceitamos este PDF (ele tem senha, programa ou comando escondido). Mande uma foto do documento ou use "Imprimir > Salvar como PDF" no navegador.',
     curriculo: 'Mande o currículo ou escreva sua experiência na mensagem.',
     endereco: 'Av. Casa Grande, 1534, Galpão B, Diadema-SP'
@@ -75,28 +98,28 @@
   var TXT_FICHA = { enviar: 'Enviar ficha cadastral', ok1: 'Ficha enviada. Obrigado, ',
     lgpd: 'Usamos seus dados só para entrar em contato com você. Veja a <a href="/politica-de-privacidade/">Política de privacidade</a>.' };
   var ASSUNTOS = [
-    { id: 'peca', titulo: 'Dúvida sobre uma peça', sub: 'Código, aplicação ou qual peça serve no seu veículo', contato: 'um', arquivos: 2,
+    { id: 'peca', titulo: 'Dúvida sobre uma peça', sub: 'Código, aplicação ou qual peça serve no seu veículo', contato: 'um', arquivos: 6,
       campos: [F.nome, F.email, F.tel,
         { n: 'codigo', l: 'Código MG ou número original (se tiver)', max: 60, ac: 'off', cap: 'characters' },
         { n: 'veiculo', l: 'Veículo, ano e motor (se souber)', max: 120, ph: 'Ex.: Gol 1.0 2012' },
         c(F.msg, { ph: 'Ex.: A mangueira do radiador está rachada e quero saber qual é a da MG.' }),
-        { n: 'arquivo', t: 'arquivo', l: 'Foto da peça (opcional, até 2 fotos)', ajuda: 'Uma foto da peça antiga, de preferência mostrando o número gravado, ajuda muito a achar a certa.', so: 'foto' }] },
+        { n: 'arquivo', t: 'arquivo', l: 'Foto da peça (opcional, até 6 fotos)', ajuda: 'Uma foto da peça antiga, de preferência mostrando o número gravado, ajuda muito a achar a certa.', so: 'foto' }] },
     c({ id: 'distribuidor', titulo: 'Sou distribuidor', sub: 'Falar com o representante da sua região', contato: 'um', arquivos: 0, campos: CAMPOS_DIST }, TXT_FICHA),
     /* Ficha cadastral: o mesmo formulário do distribuidor, aberto por /contato/?assunto=ficha (botão "Quero que a MG me procure"
        do cartão de revenda e página Representantes). Não aparece como cartão (oculto) e é enviado ao Worker como "distribuidor". */
     c({ id: 'ficha', envia: 'distribuidor', oculto: 1, titulo: 'Ficha cadastral', sub: 'A MG entra em contato com você', contato: 'um', arquivos: 0, campos: CAMPOS_DIST }, TXT_FICHA),
-    { id: 'fornecedor', titulo: 'Sou fornecedor', sub: 'Quero apresentar um produto ou serviço para a MG', contato: 'email', arquivos: 1,
+    { id: 'fornecedor', titulo: 'Sou fornecedor', sub: 'Quero apresentar um produto ou serviço para a MG', contato: 'email', arquivos: 6,
       campos: [F.nome, { n: 'empresa', l: 'Empresa', req: 1, max: 120, ac: 'organization' }, c(F.email, { req: 1 }),
         c(F.tel, { l: 'Telefone (opcional)' }),
         { n: 'categoria', l: 'O que você quer apresentar?', t: 'lista', req: 1, op: ['Matéria-prima', 'Embalagem', 'Máquinas e ferramentas', 'Serviço', 'Outro'] },
         { n: 'cnpj', l: 'CNPJ (opcional)', max: 20, ph: 'Ex.: 12.345.678/0001-90' },
         { n: 'site', l: 'Site da empresa (opcional)', t: 'url', max: 200, im: 'url', ac: 'url' }, F.msg,
-        { n: 'arquivo', t: 'arquivo', l: 'Apresentação (opcional)', ajuda: 'PDF, JPG ou PNG, até 3 MB. Está em PowerPoint ou Word? Salve como PDF (Arquivo > Salvar como > PDF). Se for maior, coloque o link no campo do site.' }] },
-    { id: 'trabalhe', titulo: 'Quero trabalhar na MG', sub: 'Deixe seus dados e seu currículo', contato: 'telefone', arquivos: 1,
+        { n: 'arquivo', t: 'arquivo', l: 'Apresentação (opcional)', ajuda: 'PDF, JPG ou PNG. O PDF vira imagens aqui mesmo (até 6 páginas). Está em PowerPoint ou Word? Salve como PDF (Arquivo > Salvar como > PDF). Se for maior, coloque o link no campo do site.' }] },
+    { id: 'trabalhe', titulo: 'Quero trabalhar na MG', sub: 'Deixe seus dados e seu currículo', contato: 'telefone', arquivos: 6,
       campos: [F.nome, c(F.tel, { req: 1 }), c(F.email, { l: 'Seu e-mail (opcional)' }),
         { n: 'cidade_bairro', l: 'Cidade e bairro onde mora', req: 1, max: 120 },
         { n: 'trabalho', l: 'Que tipo de trabalho você procura ou já fez?', req: 1, max: 300 },
-        { n: 'arquivo', t: 'arquivo', l: 'Currículo', ajuda: 'PDF, JPG ou PNG, até 3 MB. Pode ser uma foto nítida do currículo em papel. Se estiver em Word, salve como PDF (Arquivo > Salvar como > PDF).' },
+        { n: 'arquivo', t: 'arquivo', l: 'Currículo', ajuda: 'PDF, JPG ou PNG. O PDF vira imagens aqui mesmo (até 6 páginas). Pode ser uma foto nítida do currículo em papel. Se estiver em Word, salve como PDF (Arquivo > Salvar como > PDF).' },
         c(F.msg, { l: 'Mensagem (opcional)', req: 0, ajuda: 'Não tem currículo em arquivo? Escreva aqui sua experiência.' }),
         { n: 'autorizo', t: 'caixa', req: 1, l: 'Autorizo a MG a guardar meus dados e meu currículo por até 60 dias, só para avaliar uma vaga.' }] },
     { id: 'outro', titulo: 'Outro assunto', sub: 'Qualquer outra mensagem', contato: 'um', arquivos: 0,
@@ -149,6 +172,9 @@
     '#mg-fale .mgf-arq-bt{display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:0 16px;border:1.5px dashed var(--az2);border-radius:8px;background:#fff;color:var(--az);font:600 15px Inter,system-ui,sans-serif;cursor:pointer}' +
     '#mg-fale .mgf-arq-bt svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2}' +
     '#mg-fale .mgf-arqs{list-style:none;padding:0;margin:8px 0 0}#mg-fale .mgf-arqs li{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#fff;border:1px solid var(--bd);border-radius:8px;padding:4px 4px 4px 12px;margin-bottom:6px;font-size:15px;word-break:break-all}' +
+    '#mg-fale .mgf-arq-in{display:flex;flex-direction:column;gap:6px;min-width:0;padding:6px 0;word-break:normal;overflow-wrap:anywhere}#mg-fale .mgf-miniaturas{display:flex;flex-wrap:wrap;gap:4px}' +
+    '#mg-fale .mgf-miniaturas img{display:block;width:44px;height:56px;object-fit:cover;object-position:top;background:#fff;border:1px solid var(--bd);border-radius:4px}' +
+    '#mg-fale .mgf-arq-st{font-size:14px;color:var(--ci);margin:6px 0 0;line-height:1.45}#mg-fale .mgf-arq-st:empty{display:none}' +
     '#mg-fale .mgf-arqs button{min-height:48px;min-width:64px;background:none;border:0;color:var(--er);font:600 15px Inter,system-ui,sans-serif;text-decoration:underline;cursor:pointer}' +
     '#mg-fale .mgf-caixa{display:flex;gap:12px;align-items:flex-start;font-size:15px;line-height:1.5;cursor:pointer;min-height:48px}#mg-fale .mgf-caixa input{width:24px;height:24px;flex:0 0 24px;margin:2px 0 0;accent-color:var(--az)}' +
     '#mg-fale .mgf-enviar{width:100%;min-height:52px;border:0;border-radius:8px;background:var(--az);color:#fff;font:700 17px "Barlow Condensed",Inter,sans-serif;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}' +
@@ -190,23 +216,16 @@
   function lerBytes(file, ini, fim) {
     return new Promise(function (ok, erro) { var r = new FileReader(); r.onload = function () { ok(new Uint8Array(r.result)); }; r.onerror = erro; r.readAsArrayBuffer(file.slice(ini, fim)); });
   }
-  // Mesma lista do Worker. /OpenAction e /AA sozinhos não são problema (o LibreOffice usa para abrir na página 1).
-  // O Worker ainda abre as partes comprimidas do PDF e confere de novo.
-  var PROIBIDOS = { JavaScript: 1, JS: 1, Launch: 1, EmbeddedFile: 1, EmbeddedFiles: 1, RichMedia: 1, XFA: 1, SubmitForm: 1, ImportData: 1, GoToR: 1, GoToE: 1, Encrypt: 1, Rendition: 1, OnInstantiate: 1, Movie: 1, Sound: 1 };
-  function pdfPerigoso(u) {
-    var n = u.length, DEL = { 0: 1, 9: 1, 10: 1, 12: 1, 13: 1, 32: 1, 40: 1, 41: 1, 60: 1, 62: 1, 91: 1, 93: 1, 123: 1, 125: 1, 47: 1, 37: 1 };
-    function hx(b) { if (b >= 48 && b <= 57) return b - 48; b |= 32; return b >= 97 && b <= 102 ? b - 87 : -1; }
-    for (var i = u.indexOf(47); i !== -1 && i < n; i = u.indexOf(47, i + 1)) {
-      var nome = '', j = i + 1;
-      while (j < n && !DEL[u[j]] && nome.length < 20) {
-        var b = u[j];
-        if (b === 35 && j + 2 < n && hx(u[j + 1]) >= 0 && hx(u[j + 2]) >= 0) { b = hx(u[j + 1]) * 16 + hx(u[j + 2]); j += 2; }
-        nome += String.fromCharCode(b); j++;
-      }
-      if (PROIBIDOS[nome]) return true;
-      if (j > i + 1) i = j - 1;
-    }
-    return false;
+  /* Canvas -> JPEG (sai sem GPS/EXIF). Se passar de ARQ_MAX, baixa a qualidade. Depois solta a memória do canvas (celular). */
+  function canvasJpeg(cv, q) {
+    return new Promise(function (ok, erro) {
+      cv.toBlob(function (b) {
+        if (!b) { erro('tipo'); return; }
+        if (b.size > ARQ_MAX && q > 0.5) { ok(canvasJpeg(cv, q - 0.15)); return; }
+        cv.width = cv.height = 0;
+        b.size > ARQ_MAX ? erro('grande') : ok(b);
+      }, 'image/jpeg', q);
+    });
   }
   function reduzirFoto(file) {
     return new Promise(function (ok, erro) {
@@ -216,23 +235,99 @@
         var cv = document.createElement('canvas'); cv.width = Math.round(w * k); cv.height = Math.round(h * k);
         var cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, cv.width, cv.height); cx.drawImage(img, 0, 0, cv.width, cv.height);
         URL.revokeObjectURL(url);
-        cv.toBlob(function (b) { b ? ok(b) : erro('tipo'); }, 'image/jpeg', 0.85); // JPEG novo: sai sem GPS/EXIF
+        canvasJpeg(cv, 0.85).then(ok, erro); // JPEG novo: sai sem GPS/EXIF
       };
       img.onerror = function () { URL.revokeObjectURL(url); erro('tipo'); };
       img.src = url;
     });
   }
-  /* devolve { blob, ext } ou rejeita com 'tipo' | 'grande' | 'pdf' */
-  function prepararArquivo(file, soFoto) {
+
+  /* pdf.js: só é baixado quando a pessoa escolhe um PDF. O arquivo vem do jsDelivr numa versão fixa e o navegador confere
+     o hash (SRI) antes de usar; aí vira um endereço blob: local. Se o hash não bater, não roda nada. */
+  var pdfjsPromessa = null;
+  function baixaConferido(par) {
+    return fetch(PDFJS.url + par[0], { integrity: par[1], mode: 'cors', credentials: 'omit', referrerPolicy: 'no-referrer' })
+      .then(function (r) { if (!r.ok) throw 'rede'; return r.blob(); })
+      .then(function (b) { return URL.createObjectURL(new Blob([b], { type: 'text/javascript' })); });
+  }
+  function carregarPdfjs() {
+    if (!pdfjsPromessa) {
+      pdfjsPromessa = Promise.all([baixaConferido(PDFJS.lib), baixaConferido(PDFJS.worker)]).then(function (u) {
+        return import(u[0]).then(function (lib) { lib.GlobalWorkerOptions.workerSrc = u[1]; return lib; });
+      });
+      pdfjsPromessa.catch(function () { pdfjsPromessa = null; }); // deu erro: tenta de novo na próxima escolha
+    }
+    return pdfjsPromessa;
+  }
+  /* O pdf.js pede o decodificador de JPEG2000 por aqui (só quando o PDF tem esse tipo de imagem). Baixa da versão fixa,
+     conferido pelo hash. Qualquer outro arquivo é recusado (o JBIG2 usa o decodificador em JS que já vem no pdf.js).
+     Se não conseguir baixar (ou o aparelho não roda WebAssembly), a página sairia em branco: o PDF é recusado com a
+     mensagem certa (internet, ou "mande fotos das páginas"), nunca vai uma página vazia. */
+  function fabricaWasm(estado) {
+    function Fabrica() {}
+    Fabrica.prototype.fetch = function (o) {
+      var nome = o && o.filename, hash = PDFJS.wasm[nome];
+      if (nome !== 'openjpeg.wasm' || !hash) return Promise.reject(new Error('sem ' + nome));
+      if (typeof WebAssembly === 'undefined') { estado.jpx = 'pdfruim'; return Promise.reject(new Error('sem WebAssembly')); } // ex.: iPhone no Modo de Isolamento
+      return fetch(PDFJS.wasm.url + nome, { integrity: hash, mode: 'cors', credentials: 'omit', referrerPolicy: 'no-referrer' })
+        .then(function (r) { if (!r.ok) throw new Error('rede'); return r.arrayBuffer(); })
+        .then(function (b) { estado.jpx = 'ok'; return new Uint8Array(b); }, function (e) { estado.jpx = 'rede'; throw e; });
+    };
+    return Fabrica;
+  }
+  /* Transforma o PDF em imagens, uma página de cada vez (pouca memória no celular). Devolve { blobs, total }.
+     Dois relógios: baixar o pdf.js (PDFJS_TEMPO_MS, acabou = erro de rede) e transformar as páginas (PDF_TEMPO_MS, conta só
+     depois que o pdf.js chegou; acabou = usa as páginas que já ficaram prontas, ou "não conseguimos abrir" se nenhuma). */
+  function pdfParaImagens(file, max, aviso) {
+    var tarefa = null, acabou = false, relogio, blobs = [], total = 0, estado = {};
+    function fecha() { acabou = true; clearTimeout(relogio); if (tarefa) tarefa.destroy(); }
+    aviso(-1, 0); // "Preparando o PDF..." já na escolha, antes de baixar o pdf.js
+    var baixa = new Promise(function (ok, erro) {
+      relogio = setTimeout(function () { erro('rede'); }, PDFJS_TEMPO_MS);
+      Promise.all([carregarPdfjs().catch(function () { throw 'rede'; }), lerBytes(file, 0, file.size)]).then(ok, erro);
+    });
+    return baixa.then(function (r) {
+      clearTimeout(relogio);
+      var limite = new Promise(function (ok, erro) {
+        relogio = setTimeout(function () { if (blobs.length) ok({ blobs: blobs.slice(), total: total || blobs.length, pdf: true }); else erro('pdfruim'); }, PDF_TEMPO_MS);
+      });
+      tarefa = r[0].getDocument({ data: r[1], isEvalSupported: false, enableScripting: false, useWasm: true, WasmFactory: fabricaWasm(estado), useWorkerFetch: false,
+        disableAutoFetch: true, disableStream: true, disableRange: true, stopAtErrors: false });
+      var trabalho = tarefa.promise.then(function (doc) {
+        var n = Math.min(doc.numPages, max);
+        total = doc.numPages;
+        if (!n) throw 'pdfruim';
+        function pagina(i) {
+          if (i > n || acabou) return Promise.resolve();
+          aviso(i, n);
+          return doc.getPage(i).then(function (pg) {
+            var v1 = pg.getViewport({ scale: 1 }), k = Math.min(PAGINA_PX / Math.max(v1.width, v1.height), 4);
+            var vp = pg.getViewport({ scale: k }), cv = document.createElement('canvas');
+            cv.width = Math.max(1, Math.floor(vp.width)); cv.height = Math.max(1, Math.floor(vp.height));
+            var cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, cv.width, cv.height);
+            return pg.render({ canvasContext: cx, canvas: cv, viewport: vp }).promise
+              .then(function () { if (estado.jpx === 'rede' || estado.jpx === 'pdfruim') throw estado.jpx; return canvasJpeg(cv, PAGINA_Q); }) // imagem JPEG2000 não abriu: página branca
+              .then(function (b) { if (!acabou) blobs.push(b); pg.cleanup(); return pagina(i + 1); }, function (e) { cv.width = cv.height = 0; throw e; });
+          });
+        }
+        return pagina(1).then(function () { return { blobs: blobs, total: total, pdf: true }; });
+      });
+      return Promise.race([trabalho, limite]);
+    }).then(function (r) { fecha(); return r; }, function (e) {
+      fecha();
+      if (e === 'rede' || e === 'grande') throw e;
+      throw e && e.name === 'PasswordException' ? 'senha' : 'pdfruim';
+    });
+  }
+  /* devolve { blobs: [JPEG...], total, pdf } ou rejeita com 'tipo' | 'grande' | 'pdfruim' | 'senha' | 'rede' */
+  function prepararArquivo(file, soFoto, vagas, aviso) {
     return lerBytes(file, 0, 8).then(function (c) {
       var pdf = c[0] === 0x25 && c[1] === 0x50 && c[2] === 0x44 && c[3] === 0x46 && c[4] === 0x2D;
-      if (pdf && !soFoto) {
-        if (file.size > ARQ_MAX) throw 'grande';
-        return lerBytes(file, 0, file.size).then(function (u) { if (pdfPerigoso(u)) throw 'pdf'; return { blob: file, ext: 'pdf' }; });
-      }
       if (pdf && soFoto) throw 'tipo';
+      if (pdf) { if (file.size > PDF_MAX) throw 'grande'; return pdfParaImagens(file, Math.min(vagas, PDF_PAGINAS), aviso); }
       if (file.size > 40 * 1024 * 1024) throw 'grande';
-      return reduzirFoto(file).then(function (b) { if (b.size > ARQ_MAX) throw 'grande'; return { blob: b, ext: 'jpg' }; });
+      aviso(0, 0);
+      return reduzirFoto(file).then(function (b) { return { blobs: [b], total: 1 }; });
     });
   }
 
@@ -280,7 +375,7 @@
     } else if (f.t === 'arquivo') {
       h += '<span class="mgf-l" style="display:block;font-weight:600;font-size:15px;margin:0 0 6px;color:#000922" id="' + id + '-l">' + esc(f.l) + '</span>' +
         '<input type="file" id="' + id + '" hidden ' + (a.arquivos > 1 ? 'multiple ' : '') + 'accept="' + (f.so === 'foto' ? 'image/*' : 'application/pdf,image/jpeg,image/png,image/*') + '">' +
-        '<button type="button" class="mgf-arq-bt" aria-describedby="' + id + '-l ' + desc + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.5l-8.6 8.6a5 5 0 0 1-7-7L14 5.5a3.3 3.3 0 0 1 4.7 4.7l-8.6 8.6a1.7 1.7 0 0 1-2.4-2.4l8-8"/></svg>' + esc(T.arqBotao) + '</button><ul class="mgf-arqs"></ul>';
+        '<button type="button" class="mgf-arq-bt" aria-describedby="' + id + '-l ' + desc + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.5l-8.6 8.6a5 5 0 0 1-7-7L14 5.5a3.3 3.3 0 0 1 4.7 4.7l-8.6 8.6a1.7 1.7 0 0 1-2.4-2.4l8-8"/></svg>' + esc(T.arqBotao) + '</button><ul class="mgf-arqs"></ul><p class="mgf-arq-st" aria-live="polite"></p>';
     } else {
       h += '<label class="mgf-l" for="' + id + '">' + esc(f.l) + r + '</label>';
       if (f.t === 'area') h += '<textarea' + comum + ' rows="5"></textarea>';
@@ -351,11 +446,21 @@
     return msg ? (inp || box) : null;
   }
 
+  /* p.arquivos: um item por arquivo escolhido, cada um com as imagens que vão subir (PDF = uma por página) */
+  function totalImagens(p) { return p.arquivos.reduce(function (t, x) { return t + x.blobs.length; }, 0); }
+  function soltarMiniaturas(x) { (x.urls || []).forEach(function (u) { URL.revokeObjectURL(u); }); x.urls = []; }
   function desenharArquivos(p) {
     var ul = p.box.querySelector('.mgf-arqs'); if (!ul) return;
-    ul.innerHTML = p.arquivos.map(function (x, i) { return '<li><span>' + esc(x.nome) + ' (' + mb(x.blob.size) + ')</span><button type="button" data-tirar="' + i + '" aria-label="' + esc(T.tirar + ' ' + x.nome) + '">' + esc(T.tirar) + '</button></li>'; }).join('');
-    var bt = p.box.querySelector('.mgf-arq-bt'); if (bt) bt.hidden = p.arquivos.length >= p.a.arquivos;
+    ul.innerHTML = p.arquivos.map(function (x, i) {
+      if (!x.urls || !x.urls.length) x.urls = x.blobs.map(function (b) { return URL.createObjectURL(b); });
+      var tam = x.blobs.reduce(function (t, b) { return t + b.size; }, 0), pg = x.pdf ? ', ' + x.blobs.length + (x.blobs.length === 1 ? T.pagina : T.paginas) : '';
+      return '<li><div class="mgf-arq-in"><span>' + esc(x.nome) + ' (' + mb(tam) + pg + ')</span><span class="mgf-miniaturas">' +
+        x.urls.map(function (u, k) { return '<img src="' + u + '" alt="' + esc((x.pdf ? 'Página ' + (k + 1) : 'Imagem') + ' de ' + x.nome) + '">'; }).join('') +
+        '</span></div><button type="button" data-tirar="' + i + '" aria-label="' + esc(T.tirar + ' ' + x.nome) + '">' + esc(T.tirar) + '</button></li>';
+    }).join('');
+    var bt = p.box.querySelector('.mgf-arq-bt'); if (bt) bt.hidden = totalImagens(p) >= p.a.arquivos;
   }
+  function statusArquivo(p, txt) { var st = p.box.querySelector('.mgf-arq-st'); if (st) st.textContent = txt || ''; }
 
   function ligar(p) {
     var box = p.box, form = box.querySelector('form'), a = p.a;
@@ -375,18 +480,32 @@
       box.querySelector('.mgf-arq-bt').addEventListener('click', function () { inpArq.click(); });
       inpArq.addEventListener('change', function () {
         var lista = [].slice.call(inpArq.files || []); inpArq.value = '';
-        erroCampo(p, 'arquivo', '');
+        if (!lista.length || p.ocupado) return;
+        erroCampo(p, 'arquivo', ''); statusArquivo(p, '');
         var so = a.campos.filter(function (f) { return f.t === 'arquivo'; })[0].so === 'foto';
-        lista.slice(0, a.arquivos - p.arquivos.length).reduce(function (cad, file) {
+        var ERRO = { grande: T.arqGrande, pdfruim: T.arqPdfRuim, senha: T.arqPdfSenha, rede: T.arqPdfRede };
+        var bt = box.querySelector('.mgf-arq-bt'), btEnviar = form.querySelector('.mgf-enviar'), cortado = '';
+        p.ocupado = true; if (bt) bt.disabled = true; if (btEnviar) btEnviar.disabled = true;
+        // um arquivo de cada vez, uma página de cada vez (pouca memória no celular)
+        lista.reduce(function (cad, file) {
           return cad.then(function () {
-            return prepararArquivo(file, so).then(function (r) {
-              p.arquivos.push({ blob: r.blob, ext: r.ext, nome: file.name || ('arquivo.' + r.ext) }); desenharArquivos(p);
-            }, function (er) { erroCampo(p, 'arquivo', er === 'grande' ? T.arqGrande : er === 'pdf' ? T.arqPdf : T.arqTipo); });
+            var vagas = a.arquivos - totalImagens(p);
+            if (vagas <= 0) { erroCampo(p, 'arquivo', T.arqQtd); return; }
+            return prepararArquivo(file, so, vagas, function (i, n) { statusArquivo(p, i < 0 ? T.arqAbrindo : n ? T.arqLendo.replace('{i}', i).replace('{n}', n) : T.arqFoto); }).then(function (r) {
+              p.arquivos.push({ blobs: r.blobs, pdf: !!r.pdf, nome: file.name || 'arquivo' });
+              if (r.total > r.blobs.length) cortado = T.arqCortado.replace('{t}', r.total).replace('{n}', r.blobs.length);
+              desenharArquivos(p);
+            }, function (er) { erroCampo(p, 'arquivo', ERRO[er] || T.arqTipo); });
           });
-        }, Promise.resolve());
+        }, Promise.resolve()).then(function () {
+          p.ocupado = false; if (bt) bt.disabled = false; if (btEnviar) btEnviar.disabled = false;
+          statusArquivo(p, cortado);
+        });
       });
       box.querySelector('.mgf-arqs').addEventListener('click', function (e) {
-        var b = e.target.closest('[data-tirar]'); if (!b) return; p.arquivos.splice(+b.getAttribute('data-tirar'), 1); desenharArquivos(p);
+        var b = e.target.closest('[data-tirar]'); if (!b) return;
+        var x = p.arquivos.splice(+b.getAttribute('data-tirar'), 1)[0]; if (x) soltarMiniaturas(x);
+        statusArquivo(p, ''); erroCampo(p, 'arquivo', ''); desenharArquivos(p);
         var bt = box.querySelector('.mgf-arq-bt'); if (bt) bt.focus();
       });
     }
@@ -472,6 +591,7 @@
   function dataBR(t) { var d = new Date(t); return ('0' + d.getDate()).slice(-2) + '/' + ('0' + (d.getMonth() + 1)).slice(-2) + '/' + d.getFullYear(); }
 
   function enviar(p) {
+    if (p.ocupado) { var aq = erroCampo(p, 'arquivo', T.arqEspera); if (aq && aq.focus) aq.focus(); return; }
     var v = valores(p); if (!validar(p, v)) return;
     var cv = p.a.id === 'trabalhe' && cvRecente(v);
     if (cv && !(cv.semArq && p.arquivos.length)) { repetido(p, { protocolo: cv.prot, desde: dataBR(cv.t) }); return; } // sem arquivo antes e com agora: passa (complemento)
@@ -483,7 +603,8 @@
     var fd = new FormData();
     fd.append('assunto', p.a.envia || p.a.id); fd.append('tm', String(Math.round(agoraMs() - p.t0))); fd.append('mg_confirmar', form.querySelector('[name=mg_confirmar]').value);
     Object.keys(v).forEach(function (k) { if (v[k]) fd.append(k, v[k]); });
-    p.arquivos.forEach(function (x, i) { fd.append('arquivo', x.blob, 'arquivo' + (i + 1) + '.' + x.ext); });
+    var nArq = 0; // só imagens JPEG sobem (o PDF já virou imagem aqui)
+    p.arquivos.forEach(function (x) { x.blobs.forEach(function (bl) { nArq++; fd.append('arquivo', bl, 'arquivo' + nArq + '.jpg'); }); });
     var ts = form.querySelector('[name="cf-turnstile-response"]'); if (ts) fd.append('cf-turnstile-response', ts.value);
     bt.disabled = true; bt.textContent = T.enviando; progresso.textContent = temArq ? T.esperaArq : '';
     function fim() { bt.disabled = false; bt.textContent = p.a.enviar || T.enviar; progresso.textContent = ''; }
@@ -518,6 +639,7 @@
 
   /* repetido: tela no lugar do formulário, com "já recebemos" (o formulário some, para não tentar de novo) */
   function repetido(p, j) {
+    p.arquivos.forEach(soltarMiniaturas);
     var d = /^\d{2}\/\d{2}\/\d{4}$/.test(j.desde || '') ? ' em ' + j.desde : '';
     var prot = /^MG-[A-Z0-9]{3,10}$/.test(j.protocolo || '') ? j.protocolo : '';
     var form = p.box.querySelector('form');
@@ -531,6 +653,7 @@
   }
 
   function sucesso(p, v, prot) {
+    p.arquivos.forEach(soltarMiniaturas);
     var nome = (v.nome || '').split(/\s+/)[0];
     var form = p.box.querySelector('form');
     var ok = el('div', { 'class': 'mgf-ok', role: 'status', tabindex: '-1' },
