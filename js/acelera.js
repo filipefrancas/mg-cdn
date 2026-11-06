@@ -90,10 +90,10 @@
   var CSS = '' +
     '#mg-acelera{--az:#1a73c8;--az2:#155fa6;--azc:#eef6fc;--mar:#000922;--tx:#2b3445;--ci:#5b6576;--bd:#d5deeb;--er:#b3261e;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--tx);font-size:16px;line-height:1.45}' +
     '#mg-acelera *{box-sizing:border-box}#mg-acelera [hidden]{display:none !important}' +
-    '#mg-acelera .mga-lanca{position:fixed;right:16px;bottom:96px;z-index:1000;width:64px;height:64px;border-radius:50%;border:0;background:var(--az);color:#fff;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;box-shadow:0 6px 18px rgba(0,9,34,.28);font:700 11px/1 Inter,system-ui,sans-serif;letter-spacing:.02em;padding:0}' +
-    '#mg-acelera .mga-lanca:hover{background:var(--az2)}#mg-acelera .mga-lanca svg{width:24px;height:24px}' +
+    '#mg-acelera .mga-lanca{position:fixed;right:20px;bottom:20px;z-index:1000;height:48px;border-radius:10px;border:0;background:var(--az);color:#fff;cursor:pointer;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:8px;box-shadow:0 3px 10px rgba(0,9,34,.22);font:600 14px/1 Inter,system-ui,sans-serif;letter-spacing:.01em;padding:0 14px 0 12px;white-space:nowrap}' +
+    '#mg-acelera .mga-lanca:hover{background:var(--az2)}#mg-acelera .mga-lanca svg{width:20px;height:20px}' +
     '#mg-acelera button:focus-visible,#mg-acelera a:focus-visible,#mg-acelera textarea:focus-visible{outline:3px solid #f2b705;outline-offset:2px}' +
-    '#mg-acelera .mga-painel{position:fixed;right:16px;bottom:96px;z-index:1001;width:380px;height:560px;max-height:calc(100vh - 112px);background:#fff;border:1px solid var(--bd);border-radius:16px;box-shadow:0 12px 40px rgba(0,9,34,.25);display:flex;flex-direction:column;overflow:hidden}' +
+    '#mg-acelera .mga-painel{position:fixed;right:16px;bottom:80px;z-index:1001;width:380px;height:560px;max-height:calc(100vh - 112px);background:#fff;border:1px solid var(--bd);border-radius:16px;box-shadow:0 12px 40px rgba(0,9,34,.25);display:flex;flex-direction:column;overflow:hidden}' +
     '#mg-acelera .mga-cab{display:flex;align-items:center;gap:10px;padding:8px 8px 8px 16px;background:var(--az);color:#fff}' +
     '#mg-acelera .mga-cab-t{flex:1;min-width:0}#mg-acelera .mga-cab h2{margin:0;font:700 18px/1.2 Inter,system-ui,sans-serif;color:#fff}#mg-acelera .mga-cab p{margin:0;font-size:13px;opacity:.92}' +
     '#mg-acelera .mga-ic{width:48px;height:48px;border:0;border-radius:10px;background:transparent;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none}#mg-acelera .mga-ic:hover{background:rgba(255,255,255,.16)}' +
@@ -123,7 +123,7 @@
     '#mg-acelera .mga-env{width:48px;height:48px;border:0;border-radius:12px;background:var(--az);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none}#mg-acelera .mga-env:disabled{opacity:.55;cursor:default}' +
     '#mg-acelera .mga-pe{margin:0;padding:0 12px 10px;background:#fff;font-size:12.5px;color:var(--ci);display:flex;justify-content:space-between;align-items:center;gap:8px}' +
     '#mg-acelera .mga-novo{border:0;background:none;color:var(--az2);text-decoration:underline;font:600 12.5px Inter,system-ui,sans-serif;cursor:pointer;min-height:32px;padding:0 4px;flex:none}' +
-    '@media (max-width:640px){#mg-acelera .mga-lanca{right:12px;bottom:84px;width:60px;height:60px}' +
+    '@media (max-width:640px){#mg-acelera .mga-lanca{right:12px;bottom:12px;height:48px;padding:0 12px 0 10px;font-size:13.5px}' +
     '#mg-acelera .mga-painel{right:0;left:0;bottom:0;top:0;width:auto;height:auto;max-height:none;border-radius:0;border:0}' +
     '#mg-acelera .mga-msg{max-width:92%}}' +
     '@media (prefers-reduced-motion:reduce){#mg-acelera .mga-pensa i{animation:none}}';
@@ -313,6 +313,19 @@
     painel.appendChild(cab); painel.appendChild(log); painel.appendChild(form); painel.appendChild(pe);
     raiz.appendChild(lanca); raiz.appendChild(painel);
     document.body.appendChild(raiz);
+    /* aviso de cookies da loja na tela (1ª visita): o botão sobe para cima dele; some o aviso, o botão volta ao canto */
+    var acimaCookies = function () {
+      var c = document.querySelector('.js-notification-cookie-private, .cookies-falso'), b = '';
+      if (c && c.getClientRects().length && getComputedStyle(c).visibility !== 'hidden') {
+        var r = c.getBoundingClientRect(), l = lanca.getBoundingClientRect();
+        if (r.height && r.left < l.right && r.right > l.left) b = Math.round(window.innerHeight - r.top + 8) + 'px';
+      }
+      if (lanca.style.bottom !== b) lanca.style.bottom = b;
+    };
+    acimaCookies();
+    window.addEventListener('resize', acimaCookies);
+    document.addEventListener('click', function () { setTimeout(acimaCookies, 350); }, true);
+    [500, 1500, 4000].forEach(function (t) { setTimeout(acimaCookies, t); });
 
     lanca.addEventListener('click', abre);
     x.addEventListener('click', fecha);
