@@ -47,8 +47,7 @@
       fotoEl(idx, p[1] + ' ' + p[0]),
       el('span', { class: 'mgbv-cod', text: p[0] }),
       el('span', { class: 'mgrel-nome', text: p[1] }),
-      sub ? el('span', { class: 'mgrel-sub', text: sub }) : null,
-      chip ? el('span', { class: 'mgbv-chip verificar', text: 'Confirme o motor' }) : null
+      sub ? el('span', { class: 'mgrel-sub', text: sub }) : null
     ]);
   }
   function carrossel(cards) {

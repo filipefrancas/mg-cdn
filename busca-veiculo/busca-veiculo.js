@@ -211,7 +211,7 @@
         var apl = el('div', { class: 'mgbv-apl' }, [
           el('b', { text: f.marca + ' ' + f.modelo }), ' ', it.a[3] ? it.a[3] + ' · ' : '', anoTexto(it.a)
         ]);
-        var chip = it.mc === 1 && (f.cil || f.motor) ? el('span', { class: 'mgbv-chip verificar', text: 'Confirme o motor' }) : null;
+        var chip = null; // aviso "Confirme o motor" retirado a pedido do Filipe (16/11/2026)
         ul.appendChild(el('li', { class: 'mgbv-item' }, [
           el('a', { href: LOJA + '/produtos/' + it.p[2] + '/' }, [
             fotoEl(it.i, it.p[1] + ' ' + it.p[0]),
